@@ -1,0 +1,1 @@
+spark.sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")

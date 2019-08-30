@@ -1,0 +1,179 @@
+version: "3.7"
+services:
+  master:
+    build: '.'
+    hostname: master
+    depends_on:
+      - hivemetastore
+    environment:
+      SPARK_CONF_DIR: /conf
+      SPARK_PUBLIC_DNS: localhost
+      MASTER: spark://master:7077
+      SPARK_LOCAL_IP: 172.28.1.1
+      SPARK_MASTER_HOST: 172.28.1.1
+      SPARK_LOCAL_HOSTNAME: master
+    expose:
+      - 1-65535
+    ports:
+      # Spark Master Web UI
+      - 8080:8080
+      # YARN UI
+      - 8088:8088
+      # Hadoop namenode UI
+      - 9870:9870
+    volumes:
+      - ./conf/ssh-master:/root/.ssh:ro
+      - ./conf/spark-master:/conf
+      - ./data:/data
+    networks:
+      spark_net:
+        ipv4_address: 172.28.1.1
+    extra_hosts:
+      - "worker1:172.28.1.2"
+      - "worker2:172.28.1.3"
+      - "hivemetastore:172.28.1.4"
+
+  worker1:
+    build: '.'
+    hostname: worker1
+    depends_on:
+      - hivemetastore
+    environment:
+      SPARK_MASTER_ADDRESS: spark://master:7077
+      SPARK_CONF_DIR: /conf
+      SPARK_EXECUTOR_CORES: 1
+      SPARK_EXECUTOR_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+      SPARK_LOCAL_HOSTNAME: worker1
+      SPARK_LOCAL_IP: 172.28.1.2
+      SPARK_MASTER_HOST: 172.28.1.1
+      HIVE_CONFIGURE: this node does the initial configuration of Hive because this var isn't empty.
+    #      HADOOP_OPTS: -Ddfs.datanode.http.address="0.0.0.0:9864"
+    expose:
+      - 1-65535
+    ports:
+      # Hadoop datanode UI
+      - 9864:9864
+      #Spark worker UI
+      - 8081:8081
+    volumes:
+      - ./conf/ssh-worker:/root/.ssh:ro
+      - ./conf/spark-worker:/conf
+      - ./data:/data
+    networks:
+      spark_net:
+        ipv4_address: 172.28.1.2
+    extra_hosts:
+      - "master:172.28.1.1"
+      - "worker2:172.28.1.3"
+      - "hivemetastore:172.28.1.4"
+
+  worker2:
+    build: '.'
+    hostname: worker2
+    depends_on:
+      - hivemetastore
+    environment:
+      SPARK_MASTER_ADDRESS: spark://master:7077
+      SPARK_CONF_DIR: /conf
+      SPARK_EXECUTOR_CORES: 1
+      SPARK_EXECUTOR_MEMORY: 1g
+      SPARK_WORKER_PORT: 8882
+      SPARK_WORKER_WEBUI_PORT: 8082
+      SPARK_PUBLIC_DNS: localhost
+      SPARK_LOCAL_HOSTNAME: worker2
+      SPARK_LOCAL_IP: 172.28.1.3
+      SPARK_MASTER_HOST: 172.28.1.1
+      DATANODE_UI_PORT: 9865
+      HADOOP_DATANODE_OPTS: -Ddfs.datanode.http.address=0.0.0.0:9865
+    expose:
+      - 1-65535
+    ports:
+      #       TODO redefine datanode ui port
+      # Hadoop datanode UI
+      - 9865:9865
+      # Spark worker UI
+      - 8082:8082
+    volumes:
+      - ./conf/ssh-worker:/root/.ssh:ro
+      - ./conf/spark-worker:/conf
+      - ./data:/data
+    networks:
+      spark_net:
+        ipv4_address: 172.28.1.3
+    extra_hosts:
+      - "master:172.28.1.1"
+      - "worker1:172.28.1.2"
+      - "hivemetastore:172.28.1.4"
+
+  hivemetastore:
+    image: postgres:11.5
+    hostname: hivemetastore
+    environment:
+      POSTGRES_PASSWORD: new_password
+    expose:
+      - 5432
+    volumes:
+      - ./conf/hive/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      spark_net:
+        ipv4_address: 172.28.1.4
+    extra_hosts:
+      - "master:172.28.1.1"
+      - "worker1:172.28.1.2"
+      - "worker2:172.28.1.3"
+
+#  zeppelin:
+#    build: './docker_zeppelin'
+#    hostname: zeppelin
+#    volumes:
+#      - ./zeppelin_notebooks:/zeppelin_notebooks
+#    environment:
+#      ZEPPELIN_PORT: 8890
+#      ZEPPELIN_NOTEBOOK_DIR: '/zeppelin_notebooks'
+#      SPARK_LOCAL_IP: 172.28.1.3
+#      SPARK_MASTER_IP: 172.28.1.1
+#    links:
+#      - master
+#    expose:
+#      - 8890
+#    ports:
+#      - 8890:8890
+#    networks:
+#      spark_net:
+#        ipv4_address: 172.28.1.3
+#
+#  livy:
+#    build: './docker_livy'
+#    hostname: livy
+#    volumes:
+#      - ./livy_batches:/livy_batches
+#    environment:
+#      LIVY_PORT: 8998
+#      MASTER: spark://172.28.1.1:7077
+#      DEPLOY_MODE: client
+#      SPARK_LOCAL_IP: 172.28.1.4
+#      SPARK_MASTER_IP: 172.28.1.1
+#    links:
+#      - master
+#    expose:
+#      - 1-65535
+#    ports:
+#      - 8998:8998
+#    networks:
+#      spark_net:
+#        ipv4_address: 172.28.1.4
+
+networks:
+  spark_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
