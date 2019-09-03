@@ -291,8 +291,10 @@ USING hive")
 spark.sql("LOAD DATA INPATH '/grades.csv' INTO TABLE grades2")
 spark.sql("SELECT * FROM grades2").show()
 ```
+
 * Zeppelin
 Zeppelin interface should be available at [http://localhost:8890](http://localhost:8890).
+
 * Livy
 Livy is at [http://localhost:8998](http://localhost:8998).
 Try to poll the REST API:
@@ -306,23 +308,7 @@ curl --request GET \
 
 * Zeppelin:
 
-create a new notebook in Zeppelin UI,
-,paste this code and run the resulting paragraph:
-
-```
-%spark.pyspark
-
-import sys;
-df = sc.parallelize(range(10))
-print(df.collect())
-print(sys.version)
-```
-It should yield something like this:
-```
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-3.5.2 (default, Nov 12 2018, 13:43:14) 
-[GCC 5.4.0 20160609]
-```
+There's a notebook ready with all test commands already.
 
 * Livy:
 
@@ -377,3 +363,4 @@ hive on spark https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+
 generate ssh keys on the fly
 remove all unnecessary conf properties.
 try newer version of hive when 2.3.6 works with spark
+extract common image

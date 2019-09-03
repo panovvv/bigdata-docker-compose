@@ -1,132 +1,36 @@
 {
   "paragraphs": [
     {
-      "text": "val df \u003d List(1,2,3,4,5).toDS().toDF()\ndf.show()",
-      "user": "anonymous",
-      "dateUpdated": "2019-08-12 11:38:07.807",
-      "config": {
-        "colWidth": 12.0,
-        "fontSize": 9.0,
-        "enabled": true,
-        "results": {},
-        "editorSetting": {
-          "language": "scala",
-          "editOnDblClick": false,
-          "completionKey": "TAB",
-          "completionSupport": true
-        },
-        "editorMode": "ace/mode/scala"
-      },
-      "settings": {
-        "params": {},
-        "forms": {}
-      },
-      "apps": [],
-      "jobName": "paragraph_1565609164293_990482692",
-      "id": "20190812-112604_109994468",
-      "dateCreated": "2019-08-12 11:26:04.293",
-      "dateStarted": "2019-08-12 11:38:07.931",
-      "dateFinished": "2019-08-12 11:38:29.634",
-      "status": "FINISHED",
-      "progressUpdateIntervalMs": 500
+      "text": "%sh\n\nhadoop fs -put /data/grades.csv /"
     },
     {
-      "text": "%spark.pyspark\n\nimport sys\n\nprint(sys.version)\n\ndf \u003d sqlContext.createDataFrame([(\"foo\", 1), (\"bar\", 2), (\"baz\", 3)], (\u0027k\u0027, \u0027v\u0027))\ndf.show()",
-      "user": "anonymous",
-      "dateUpdated": "2019-08-12 11:38:18.479",
-      "config": {
-        "colWidth": 12.0,
-        "fontSize": 9.0,
-        "enabled": true,
-        "results": {},
-        "editorSetting": {
-          "language": "python",
-          "editOnDblClick": false,
-          "completionKey": "TAB",
-          "completionSupport": true
-        },
-        "editorMode": "ace/mode/python"
-      },
-      "settings": {
-        "params": {},
-        "forms": {}
-      },
-      "runtimeInfos": {
-        "jobUrl": {
-          "propertyName": "jobUrl",
-          "label": "SPARK JOB",
-          "tooltip": "View in Spark web UI",
-          "group": "spark",
-          "values": [
-            "http://zeppelin:4040/jobs/job?id\u003d0",
-            "http://zeppelin:4040/jobs/job?id\u003d1"
-          ],
-          "interpreterSettingId": "spark"
-        }
-      },
-      "apps": [],
-      "jobName": "paragraph_1565609173398_2068560400",
-      "id": "20190812-112613_2099979619",
-      "dateCreated": "2019-08-12 11:26:13.398",
-      "dateStarted": "2019-08-12 11:38:18.537",
-      "dateFinished": "2019-08-12 11:38:33.203",
-      "status": "FINISHED",
-      "progressUpdateIntervalMs": 500
+      "text": "%sh\n\nhadoop fs -ls /"
     },
     {
-      "text": "%spark.r\ndf \u003c- as.DataFrame(list(1,2,3,4,5,6))\nhead(df)",
-      "user": "anonymous",
-      "dateUpdated": "2019-08-12 11:29:10.942",
-      "config": {
-        "colWidth": 12.0,
-        "fontSize": 9.0,
-        "enabled": true,
-        "results": {},
-        "editorSetting": {
-          "language": "r",
-          "editOnDblClick": false,
-          "completionKey": "TAB",
-          "completionSupport": false
-        },
-        "editorMode": "ace/mode/r"
-      },
-      "settings": {
-        "params": {},
-        "forms": {}
-      },
-      "apps": [],
-      "jobName": "paragraph_1565609261374_-114567080",
-      "id": "20190812-112741_1949013178",
-      "dateCreated": "2019-08-12 11:27:41.374",
-      "dateStarted": "2019-08-12 11:29:10.989",
-      "dateFinished": "2019-08-12 11:29:11.512",
-      "status": "FINISHED",
-      "progressUpdateIntervalMs": 500
+      "text": "%spark\n\n// Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
-      "user": "anonymous",
-      "config": {},
-      "settings": {
-        "params": {},
-        "forms": {}
-      },
-      "apps": [],
-      "jobName": "paragraph_1565609296333_466011053",
-      "id": "20190812-112816_1265435671",
-      "dateCreated": "2019-08-12 11:28:16.333",
-      "status": "READY",
-      "progressUpdateIntervalMs": 500
+      "text": "%spark\n\n// Dataframes\nval values \u003d List(List(\"1\", \"One\") ,List(\"2\", \"Two\") ,List(\"3\", \"Three\"),List(\"4\",\"Four\")).map(x \u003d\u003e(x(0), x(1)))\nval df \u003d values.toDF\ndf.show()"
+    },
+    {
+      "text": "%spark\n\n// Read CSV file from HDFS into Dataframe\nval df \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
+    },
+    {
+      "text": "%spark.pyspark\n\n# Check Python version - 2 not allowed.\nimport sys\nprint(sys.version)"
+    },
+    {
+      "text": "%spark.pyspark\n\n#  Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
+    },
+    {
+      "text": "%spark.pyspark\n\n# Dataframes\ndf \u003d sqlContext.createDataFrame([(\"One\", 1), (\"Two\", 2), (\"Three\", 3), (\"Four\", 4)], (\u0027k\u0027, \u0027v\u0027))\ndf.show()"
+    },
+    {
+      "text": "%spark.pyspark\n\n# Read CSV file from HDFS into Dataframe\ndf \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
+    },
+    {
+      "text": "%spark.r\n# Not working right now, needs R to be installed\ndf \u003c- as.DataFrame(list(1,2,3,4,5,6))\nhead(df)"
     }
   ],
   "name": "test",
-  "id": "2EKGZ25MS",
-  "noteParams": {},
-  "noteForms": {},
-  "angularObjects": {
-    "spark:shared_process": []
-  },
-  "config": {
-    "isZeppelinNotebookCronEnable": false
-  },
-  "info": {}
+  "id": "2EKGZ25MS"
 }

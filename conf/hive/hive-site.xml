@@ -42,13 +42,16 @@
     </property>
 
     <!--    https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started -->
-    <!--    <property>-->
-    <!--        <name>hive.execution.engine</name>-->
-    <!--        <value>spark</value>-->
-    <!--    </property>-->
-
     <property>
         <name>hive.execution.engine</name>
         <value>mr</value>
     </property>
+<!--        <property>-->
+<!--        <name>hive.execution.engine</name>-->
+<!--        <value>spark</value>-->
+<!--    </property>-->
+<!--    <property>-->
+<!--        <name>spark.yarn.jars</name>-->
+<!--        <value>hdfs://master:9000/spark-jars/*</value>-->
+<!--    </property>-->
 </configuration>

@@ -1,36 +1,26 @@
-FROM docker-spark-zeppelin-livy
+FROM bigdata-docker-compose_master:latest
 
 ARG LIVY_VERSION=0.6.0-incubating
-
-ENV LIVY_HOME /usr/apache-livy-${LIVY_VERSION}-bin
+ENV LIVY_HOME /usr/livy
 ENV LIVY_CONF_DIR ${LIVY_HOME}/conf
-ENV LIVY_PORT 8998
-ENV MASTER spark://master:7077
-RUN echo "Installing Livy..." && \
-  curl --progress-bar -sL --retry 3 \
+RUN curl --progress-bar -L --retry 3 \
     "http://archive.apache.org/dist/incubator/livy/${LIVY_VERSION}/apache-livy-${LIVY_VERSION}-bin.zip" \
-    -o ./apache-livy-${LIVY_VERSION}-bin.zip && \
-  unzip ./apache-livy-${LIVY_VERSION}-bin.zip -d /usr && \
-  rm -rf ./apache-livy-${LIVY_VERSION}-bin.zip && \
-  mkdir ${LIVY_HOME}/logs && \
-  chown -R root:root ${LIVY_HOME}
-RUN echo "Configuring Livy..." && \
-  echo "livy.server.port = ${LIVY_PORT}" >> ${LIVY_HOME}/conf/livy.conf && \
-  echo "livy.spark.master = ${MASTER}" >> ${LIVY_HOME}/conf/livy.conf && \
-  echo "livy.spark.deployMode = ${DEPLOY_MODE}" >> ${LIVY_HOME}/conf/livy.conf && \
-  echo "livy.repl.enable-hive-context = true" >> ${LIVY_HOME}/conf/livy.conf && \
-  echo "#!/bin/sh" >> ${LIVY_HOME}/conf/livy-env.sh && \
-  echo "export JAVA_HOME=${JAVA_HOME}" >> ${LIVY_HOME}/conf/livy-env.sh && \
-  echo "export SPARK_HOME=${SPARK_HOME}" >> ${LIVY_HOME}/conf/livy-env.sh && \
-  echo "export SPARK_CONF_DIR=${SPARK_CONF_DIR}" >> ${LIVY_HOME}/conf/livy-env.sh && \
-  echo "export HADOOP_HOME=${HADOOP_HOME}" >> ${LIVY_HOME}/conf/livy-env.sh && \
-  echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${LIVY_HOME}/conf/livy-env.sh && \
-  chmod 755 ${LIVY_HOME}/conf/livy-env.sh
+    -o ./apache-livy-${LIVY_VERSION}-bin.zip \
+  && unzip -qq ./apache-livy-${LIVY_VERSION}-bin.zip -d /usr \
+  && mv /usr/apache-livy-${LIVY_VERSION}-bin ${LIVY_HOME} \
+  && rm -rf ./apache-livy-${LIVY_VERSION}-bin.zip \
+  && mkdir ${LIVY_HOME}/logs \
+  && chown -R root:root ${LIVY_HOME}
+
+ENV LIVY_PORT 8998
+ENV MASTER yarn
+ENV DEPLOY_MODE client
+COPY conf/livy.conf ${LIVY_CONF_DIR}/livy.conf
 
 ADD entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 8998
+HEALTHCHECK CMD curl -f http://host.docker.internal:$LIVY_PORT/ || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
 

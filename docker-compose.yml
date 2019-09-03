@@ -6,9 +6,7 @@ services:
     depends_on:
       - hivemetastore
     environment:
-      SPARK_CONF_DIR: /conf
       SPARK_PUBLIC_DNS: localhost
-      MASTER: spark://master:7077
       SPARK_LOCAL_IP: 172.28.1.1
       SPARK_MASTER_HOST: 172.28.1.1
       SPARK_LOCAL_HOSTNAME: master
@@ -23,7 +21,6 @@ services:
       - 9870:9870
     volumes:
       - ./conf/ssh-master:/root/.ssh:ro
-      - ./conf/spark-master:/conf
       - ./data:/data
     networks:
       spark_net:
@@ -32,6 +29,8 @@ services:
       - "worker1:172.28.1.2"
       - "worker2:172.28.1.3"
       - "hivemetastore:172.28.1.4"
+      - "zeppelin:172.28.1.5"
+      - "livy:172.28.1.6"
 
   worker1:
     build: '.'
@@ -40,7 +39,6 @@ services:
       - hivemetastore
     environment:
       SPARK_MASTER_ADDRESS: spark://master:7077
-      SPARK_CONF_DIR: /conf
       SPARK_EXECUTOR_CORES: 1
       SPARK_EXECUTOR_MEMORY: 1g
       SPARK_WORKER_PORT: 8881
@@ -60,7 +58,6 @@ services:
       - 8081:8081
     volumes:
       - ./conf/ssh-worker:/root/.ssh:ro
-      - ./conf/spark-worker:/conf
       - ./data:/data
     networks:
       spark_net:
@@ -69,6 +66,8 @@ services:
       - "master:172.28.1.1"
       - "worker2:172.28.1.3"
       - "hivemetastore:172.28.1.4"
+      - "zeppelin:172.28.1.5"
+      - "livy:172.28.1.6"
 
   worker2:
     build: '.'
@@ -77,7 +76,6 @@ services:
       - hivemetastore
     environment:
       SPARK_MASTER_ADDRESS: spark://master:7077
-      SPARK_CONF_DIR: /conf
       SPARK_EXECUTOR_CORES: 1
       SPARK_EXECUTOR_MEMORY: 1g
       SPARK_WORKER_PORT: 8882
@@ -98,7 +96,6 @@ services:
       - 8082:8082
     volumes:
       - ./conf/ssh-worker:/root/.ssh:ro
-      - ./conf/spark-worker:/conf
       - ./data:/data
     networks:
       spark_net:
@@ -107,6 +104,8 @@ services:
       - "master:172.28.1.1"
       - "worker1:172.28.1.2"
       - "hivemetastore:172.28.1.4"
+      - "zeppelin:172.28.1.5"
+      - "livy:172.28.1.6"
 
   hivemetastore:
     image: postgres:11.5
@@ -129,47 +128,51 @@ services:
       - "master:172.28.1.1"
       - "worker1:172.28.1.2"
       - "worker2:172.28.1.3"
+      - "zeppelin:172.28.1.5"
+      - "livy:172.28.1.6"
 
 #  zeppelin:
 #    build: './docker_zeppelin'
 #    hostname: zeppelin
 #    volumes:
 #      - ./zeppelin_notebooks:/zeppelin_notebooks
+#      - ./data:/data
 #    environment:
 #      ZEPPELIN_PORT: 8890
 #      ZEPPELIN_NOTEBOOK_DIR: '/zeppelin_notebooks'
-#      SPARK_LOCAL_IP: 172.28.1.3
-#      SPARK_MASTER_IP: 172.28.1.1
-#    links:
-#      - master
 #    expose:
 #      - 8890
 #    ports:
 #      - 8890:8890
 #    networks:
 #      spark_net:
-#        ipv4_address: 172.28.1.3
+#        ipv4_address: 172.28.1.5
+#    extra_hosts:
+#      - "master:172.28.1.1"
+#      - "worker1:172.28.1.2"
+#      - "worker2:172.28.1.3"
+#      - "hivemetastore:172.28.1.4"
+#      - "livy:172.28.1.6"
 #
 #  livy:
 #    build: './docker_livy'
 #    hostname: livy
 #    volumes:
 #      - ./livy_batches:/livy_batches
-#    environment:
-#      LIVY_PORT: 8998
-#      MASTER: spark://172.28.1.1:7077
-#      DEPLOY_MODE: client
-#      SPARK_LOCAL_IP: 172.28.1.4
-#      SPARK_MASTER_IP: 172.28.1.1
-#    links:
-#      - master
+#      - ./data:/data
 #    expose:
 #      - 1-65535
 #    ports:
 #      - 8998:8998
 #    networks:
 #      spark_net:
-#        ipv4_address: 172.28.1.4
+#        ipv4_address: 172.28.1.6
+#    extra_hosts:
+#      - "master:172.28.1.1"
+#      - "worker1:172.28.1.2"
+#      - "worker2:172.28.1.3"
+#      - "hivemetastore:172.28.1.4"
+#      - "zeppelin:172.28.1.5"
 
 networks:
   spark_net:

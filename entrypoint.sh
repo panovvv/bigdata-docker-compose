@@ -3,8 +3,8 @@
 # Hadoop and YARN
 service ssh start
 yes Y | hdfs namenode -format
-start-dfs.sh
-start-yarn.sh
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
 
 # Hive
 if [ ! -z "$HIVE_CONFIGURE" ]; then
@@ -21,14 +21,15 @@ fi
 
 # Spark
 if [ -z "$SPARK_MASTER_ADDRESS" ]; then
-  nohup $SPARK_HOME/sbin/start-master.sh -h master >$SPARK_HOME/spark.log &
+  nohup $SPARK_HOME/sbin/start-master.sh -h master > $SPARK_HOME/spark.log &
 else
-  nohup $SPARK_HOME/sbin/start-slave.sh $SPARK_MASTER_ADDRESS >$SPARK_HOME/spark.log &
+  nohup $SPARK_HOME/sbin/start-slave.sh $SPARK_MASTER_ADDRESS > $SPARK_HOME/spark.log &
 fi
 
 # Blocking call to view all logs. This is what won't let container exit right away.
-tail -f /dev/null ${HADOOP_HOME}/logs/* $SPARK_HOME/spark.log
+tail -f /dev/null ${HADOOP_HOME}/logs/* $SPARK_HOME/logs/* $SPARK_HOME/spark.log
 
-# Stop Hadoop
-stop-yarn.sh
-stop-dfs.sh
+# Stop all
+$HADOOP_HOME/sbin/stop-yarn.sh
+$HADOOP_HOME/sbin/stop-dfs.sh
+$SPARK_HOME/sbin/stop-all.sh
