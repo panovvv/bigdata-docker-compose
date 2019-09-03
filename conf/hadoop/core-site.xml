@@ -29,13 +29,10 @@
         <value>hdfs://master:9000</value>
     </property>
 
+    <!-- This is where here namenode stores its metadata, and  where HDFS
+    data blocks are stored as well. -->
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/var/hadoop/tmp</value>
-        <description>
-            This is where here namenode stores its metadata, and  where HDFS
-            data blocks are stored as well.
-        </description>
     </property>
 
 </configuration>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Hadoop
+# Hadoop and YARN
 service ssh start
 yes Y | hdfs namenode -format
 start-dfs.sh
@@ -12,13 +12,19 @@ if [ ! -z "$HIVE_CONFIGURE" ]; then
   hive --service metastore &
 fi
 
-# Spark
-if [ -z "$SPARK_MASTER_ADDRESS" ]; then
-  nohup $SPARK_HOME/bin/spark-class org.apache.spark.deploy.master.Master -h master > $SPARK_HOME/spark.log &
-else
-  nohup $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker $SPARK_MASTER_ADDRESS > $SPARK_HOME/spark.log &
+# Spark on YARN
+SPARK_JARS_HDFS_PATH=/spark-jars
+hadoop fs -test -d $SPARK_JARS_HDFS_PATH
+if [ $? -ne 0 ]; then
+  hadoop fs -put $SPARK_HOME/jars /spark-jars
 fi
 
+# Spark
+if [ -z "$SPARK_MASTER_ADDRESS" ]; then
+  nohup $SPARK_HOME/sbin/start-master.sh -h master >$SPARK_HOME/spark.log &
+else
+  nohup $SPARK_HOME/sbin/start-slave.sh $SPARK_MASTER_ADDRESS >$SPARK_HOME/spark.log &
+fi
 
 # Blocking call to view all logs. This is what won't let container exit right away.
 tail -f /dev/null ${HADOOP_HOME}/logs/* $SPARK_HOME/spark.log

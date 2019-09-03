@@ -7,7 +7,7 @@ ENV LIVY_CONF_DIR ${LIVY_HOME}/conf
 ENV LIVY_PORT 8998
 ENV MASTER spark://master:7077
 RUN echo "Installing Livy..." && \
-  curl -sL --retry 3 \
+  curl --progress-bar -sL --retry 3 \
     "http://archive.apache.org/dist/incubator/livy/${LIVY_VERSION}/apache-livy-${LIVY_VERSION}-bin.zip" \
     -o ./apache-livy-${LIVY_VERSION}-bin.zip && \
   unzip ./apache-livy-${LIVY_VERSION}-bin.zip -d /usr && \

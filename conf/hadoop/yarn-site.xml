@@ -64,4 +64,24 @@
     <!--        <value>1</value>-->
     <!--    </property>-->
 
+    <!-- Required for Hive on Spark
+    https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started
+    -->
+<!--    <property>-->
+<!--        <name>yarn.resourcemanager.scheduler.class</name>-->
+<!--        &lt;!&ndash; Note: do not reformat, any new lines between <value></value>-->
+<!--        tags will cause NoClassDefFound for FairScheduler&ndash;&gt;-->
+<!--        <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</value>-->
+<!--    </property>-->
+
+
+<!--    <property>-->
+<!--        <name>yarn.nodemanager.pmem-check-enabled</name>-->
+<!--        <value>false</value>-->
+<!--    </property>-->
+
+<!--    <property>-->
+<!--        <name>yarn.nodemanager.vmem-check-enabled</name>-->
+<!--        <value>false</value>-->
+<!--    </property>-->
 </configuration>

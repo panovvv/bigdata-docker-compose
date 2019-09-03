@@ -12,7 +12,7 @@ in one command. This is how this repository came to be!
 
 [Hive 3.1.2 ](https://hadoop.apache.org/) 
 
-[Spark 2.4.3 in YARN mode](https://spark.apache.org/) 
+[Spark 2.4.4 in YARN mode](https://spark.apache.org/) 
 
 [Zeppelin 0.8.1](https://zeppelin.apache.org/) 
 
@@ -38,10 +38,6 @@ Bring everything up:
 cd bigdata-docker-compose
 docker-compose up -d
 ```
-
-Zeppelin interface should be available at [http://localhost:8890](http://localhost:8890).
-
-Livy is at [http://localhost:8998](http://localhost:8998).
 
 To shut the whole thing down, run this from the same folder:
 ```bash
@@ -113,7 +109,7 @@ Ctrl+D out of master now. Repeat for remaining nodes
 
 ```bash
 docker-compose exec worker1 bash
-hadoop fs -ls /grades
+hadoop fs -ls /
 ```
 <pre>
 Found 1 items
@@ -135,7 +131,7 @@ jps
 </pre>
 
 * Hive
-
+Prereqisite: there's a file grades.csv stored in HDFS ( hadoop fs -put /data/grades.csv / )
 ```bash
 docker-compose exec master bash
 hive
@@ -218,24 +214,44 @@ Let's run some sample jobs now:
 ```bash
 docker-compose exec master bash
 run-example SparkPi 10
+#, or you can do the same via spark-submit:
+spark-submit --class org.apache.spark.examples.SparkPi \
+    --master yarn \
+    --deploy-mode client \
+    --driver-memory 4g \
+    --executor-memory 2g \
+    --executor-cores 1 \
+    $SPARK_HOME/examples/jars/spark-examples*.jar \
+    10
 ```
 <pre>
+INFO spark.SparkContext: Running Spark version 2.4.4
+INFO spark.SparkContext: Submitted application: Spark Pi
 ...
-INFO scheduler.DAGScheduler: Job 0 finished: reduce at SparkPi.scala:38, took 0.876060 s
-Pi is roughly 3.1435757178785892
+INFO yarn.Client: Application report for application_1567375394688_0001 (state: ACCEPTED)
 ...
-INFO util.ShutdownHookManager: Deleting directory /tmp/spark-7bba1756-2b62-4ed5-abd0-c5bfc2a7996a
+INFO yarn.Client: Application report for application_1567375394688_0001 (state: RUNNING)
+...
+INFO scheduler.DAGScheduler: Job 0 finished: reduce at SparkPi.scala:38, took 1.102882 s
+Pi is roughly 3.138915138915139
+...
+INFO util.ShutdownHookManager: Deleting directory /tmp/spark-81ea2c22-d96e-4d7c-a8d7-9240d8eb22ce
 </pre>
 
 ```bash
 hadoop fs -put /data/grades.csv /
-pyspark
+spark-shell
 ```
-```python
-df = spark.read.format("csv").option("header", "true").load("/grades.csv")
+```scala
+spark.range(1000 * 1000 * 1000).count()
+val df = spark.read.format("csv").option("header", "true").load("/grades.csv")
 df.show()
 ```
 <pre>
+res0: Long = 1000000000
+
+df: org.apache.spark.sql.DataFrame = [Last name: string, First name: string ... 7 more fields]
+
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
 |Last name|First name|        SSN|Test1|Test2|Test3|Test4|Final|Grade|
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
@@ -244,12 +260,23 @@ df.show()
 |Heffalump|    Harvey|632-79-9439|   30|    1|   20|   30|   40|    C|
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
 </pre>
+```bash
+pyspark
+```
 ```python
-spark = SparkSession \
-    .builder \
-    .appName("Python Spark SQL Hive integration example") \
-    .enableHiveSupport() \
-    .getOrCreate()
+spark.range(1000 * 1000 * 1000).count()
+df = spark.read.format("csv").option("header", "true").load("/grades.csv")
+df.show()
+```
+<pre>
+1000000000
+
+$same_table_as_above
+</pre>
+```python
+# TODO SELECT TABLE from hive - dont create a new one
+spark = SparkSession.builder.enableHiveSupport().getOrCreate()
+spark.sql("SHOW DATABASES")
 spark.sql("CREATE TABLE grades2( \
     `Last name` STRING,  \
     `First name` STRING,  \
@@ -261,9 +288,19 @@ spark.sql("CREATE TABLE grades2( \
     `Final` DOUBLE, \
     `Grade` STRING) \
 USING hive")
-spark.sql("LOAD DATA INPATH '/grades.csv' INTO TABLE grades2;")
+spark.sql("LOAD DATA INPATH '/grades.csv' INTO TABLE grades2")
 spark.sql("SELECT * FROM grades2").show()
 ```
+* Zeppelin
+Zeppelin interface should be available at [http://localhost:8890](http://localhost:8890).
+* Livy
+Livy is at [http://localhost:8998](http://localhost:8998).
+Try to poll the REST API:
+```bash
+curl --request GET \
+  --url http://localhost:8998/sessions
+```
+>{"from": 0,"total": 0,"sessions": []}
 
 ## Doing a thing in ...
 
@@ -334,10 +371,9 @@ Here's what you're supposed to see in response:
 ```
 
 ## TODO
-Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
 docker run --rm -i hadolint/hadolint < Dockerfile
 alpine
 hive on spark https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started
 generate ssh keys on the fly
-
-
+remove all unnecessary conf properties.
+try newer version of hive when 2.3.6 works with spark

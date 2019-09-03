@@ -41,8 +41,12 @@
         <value>new_password</value>
     </property>
 
-<!--    TODO set to spark-->
-<!--    https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started -->
+    <!--    https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started -->
+    <!--    <property>-->
+    <!--        <name>hive.execution.engine</name>-->
+    <!--        <value>spark</value>-->
+    <!--    </property>-->
+
     <property>
         <name>hive.execution.engine</name>
         <value>mr</value>
