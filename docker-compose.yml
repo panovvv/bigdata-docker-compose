@@ -15,10 +15,17 @@ services:
     ports:
       # Spark Master Web UI
       - 8080:8080
+      # Spark job Web UI: increments for each successive job
+      - 4040:4040
+      - 4041:4041
+      - 4042:4042
+      - 4043:4043
       # YARN UI
       - 8088:8088
       # Hadoop namenode UI
       - 9870:9870
+      # Hadoop secondary namenode UI
+      - 9868:9868
     volumes:
       - ./conf/ssh-master:/root/.ssh:ro
       - ./data:/data
@@ -39,8 +46,6 @@ services:
       - hivemetastore
     environment:
       SPARK_MASTER_ADDRESS: spark://master:7077
-      SPARK_EXECUTOR_CORES: 1
-      SPARK_EXECUTOR_MEMORY: 1g
       SPARK_WORKER_PORT: 8881
       SPARK_WORKER_WEBUI_PORT: 8081
       SPARK_PUBLIC_DNS: localhost
@@ -48,7 +53,6 @@ services:
       SPARK_LOCAL_IP: 172.28.1.2
       SPARK_MASTER_HOST: 172.28.1.1
       HIVE_CONFIGURE: this node does the initial configuration of Hive because this var isn't empty.
-    #      HADOOP_OPTS: -Ddfs.datanode.http.address="0.0.0.0:9864"
     expose:
       - 1-65535
     ports:
@@ -76,20 +80,16 @@ services:
       - hivemetastore
     environment:
       SPARK_MASTER_ADDRESS: spark://master:7077
-      SPARK_EXECUTOR_CORES: 1
-      SPARK_EXECUTOR_MEMORY: 1g
       SPARK_WORKER_PORT: 8882
       SPARK_WORKER_WEBUI_PORT: 8082
       SPARK_PUBLIC_DNS: localhost
       SPARK_LOCAL_HOSTNAME: worker2
       SPARK_LOCAL_IP: 172.28.1.3
       SPARK_MASTER_HOST: 172.28.1.1
-      DATANODE_UI_PORT: 9865
-      HADOOP_DATANODE_OPTS: -Ddfs.datanode.http.address=0.0.0.0:9865
+      HADOOP_DATANODE_UI_PORT: 9865
     expose:
       - 1-65535
     ports:
-      #       TODO redefine datanode ui port
       # Hadoop datanode UI
       - 9865:9865
       # Spark worker UI
@@ -131,48 +131,48 @@ services:
       - "zeppelin:172.28.1.5"
       - "livy:172.28.1.6"
 
-#  zeppelin:
-#    build: './docker_zeppelin'
-#    hostname: zeppelin
-#    volumes:
-#      - ./zeppelin_notebooks:/zeppelin_notebooks
-#      - ./data:/data
-#    environment:
-#      ZEPPELIN_PORT: 8890
-#      ZEPPELIN_NOTEBOOK_DIR: '/zeppelin_notebooks'
-#    expose:
-#      - 8890
-#    ports:
-#      - 8890:8890
-#    networks:
-#      spark_net:
-#        ipv4_address: 172.28.1.5
-#    extra_hosts:
-#      - "master:172.28.1.1"
-#      - "worker1:172.28.1.2"
-#      - "worker2:172.28.1.3"
-#      - "hivemetastore:172.28.1.4"
-#      - "livy:172.28.1.6"
-#
-#  livy:
-#    build: './docker_livy'
-#    hostname: livy
-#    volumes:
-#      - ./livy_batches:/livy_batches
-#      - ./data:/data
-#    expose:
-#      - 1-65535
-#    ports:
-#      - 8998:8998
-#    networks:
-#      spark_net:
-#        ipv4_address: 172.28.1.6
-#    extra_hosts:
-#      - "master:172.28.1.1"
-#      - "worker1:172.28.1.2"
-#      - "worker2:172.28.1.3"
-#      - "hivemetastore:172.28.1.4"
-#      - "zeppelin:172.28.1.5"
+  zeppelin:
+    build: './docker_zeppelin'
+    hostname: zeppelin
+    volumes:
+      - ./zeppelin_notebooks:/zeppelin_notebooks
+      - ./data:/data
+    environment:
+      ZEPPELIN_PORT: 8890
+      ZEPPELIN_NOTEBOOK_DIR: '/zeppelin_notebooks'
+    expose:
+      - 8890
+    ports:
+      - 8890:8890
+    networks:
+      spark_net:
+        ipv4_address: 172.28.1.5
+    extra_hosts:
+      - "master:172.28.1.1"
+      - "worker1:172.28.1.2"
+      - "worker2:172.28.1.3"
+      - "hivemetastore:172.28.1.4"
+      - "livy:172.28.1.6"
+
+  livy:
+    build: './docker_livy'
+    hostname: livy
+    volumes:
+      - ./livy_batches:/livy_batches
+      - ./data:/data
+    expose:
+      - 1-65535
+    ports:
+      - 8998:8998
+    networks:
+      spark_net:
+        ipv4_address: 172.28.1.6
+    extra_hosts:
+      - "master:172.28.1.1"
+      - "worker1:172.28.1.2"
+      - "worker2:172.28.1.3"
+      - "hivemetastore:172.28.1.4"
+      - "zeppelin:172.28.1.5"
 
 networks:
   spark_net:

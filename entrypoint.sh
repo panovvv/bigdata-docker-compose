@@ -1,6 +1,10 @@
 #!/bin/bash
 
 # Hadoop and YARN
+if [ ! -z "$HADOOP_DATANODE_UI_PORT" ]; then
+  echo "Replacing default datanode UI port 9864 with ${HADOOP_DATANODE_UI_PORT}"
+  sed -i "$ i\<property><name>dfs.datanode.http.address</name><value>0.0.0.0:${HADOOP_DATANODE_UI_PORT}</value></property>" $HADOOP_CONF_DIR/hdfs-site.xml
+fi
 service ssh start
 yes Y | hdfs namenode -format
 $HADOOP_HOME/sbin/start-dfs.sh
@@ -27,7 +31,7 @@ else
 fi
 
 # Blocking call to view all logs. This is what won't let container exit right away.
-tail -f /dev/null ${HADOOP_HOME}/logs/* $SPARK_HOME/logs/* $SPARK_HOME/spark.log
+tail -f /dev/null ${HADOOP_LOG_DIR}/* $SPARK_HOME/logs/* $SPARK_HOME/spark.log
 
 # Stop all
 $HADOOP_HOME/sbin/stop-yarn.sh

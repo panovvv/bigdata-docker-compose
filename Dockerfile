@@ -30,7 +30,6 @@ RUN curl --progress-bar -L --retry 3 \
 
 # Hive
 ARG HIVE_VERSION=2.3.6
-#3.1.2
 ENV HIVE_HOME=/usr/hive
 ENV HIVE_CONF_DIR=$HIVE_HOME/conf
 ENV PATH $PATH:$HIVE_HOME/bin
@@ -57,16 +56,17 @@ RUN curl --progress-bar -L --retry 3 \
   | tar x -C /usr/ \
  && mv /usr/$SPARK_PACKAGE $SPARK_HOME \
  && chown -R root:root $SPARK_HOME
-#RUN git clone --progress --single-branch --branch branch-2.4 https://github.com/apache/spark.git \
-#    && mv ./spark $SPARK_HOME \
-#    && cd $SPARK_HOME \
-#    && rm ./sql/hive/src/test/java/org/apache/spark/sql/hive/JavaDataFrameSuite.java \
-#    && ./build/mvn -Pyarn -Phadoop-3.2 -Dhadoop.version=$HADOOP_VERSION -Dhive.version=$HIVE_VERSION -Dhive.version.short=$HIVE_VERSION   \
-#        -Phive -DskipTests clean package
+# For inscrutable reasons, Spark distribution doesn't include spark-hive.jar
+ARG SCALA_VERSION=2.11
+RUN curl --progress-bar -L \
+    "https://repo1.maven.org/maven2/org/apache/spark/spark-hive_$SCALA_VERSION/${SPARK_VERSION}/spark-hive_$SCALA_VERSION-${SPARK_VERSION}.jar" \
+    --output "$SPARK_HOME/jars/spark-hive_$SCALA_VERSION-${SPARK_VERSION}.jar"
+
 #RUN git clone --progress --single-branch --branch branch-2.4 \
 #    https://github.com/apache/spark.git
 #ENV MAVEN_OPTS="-Xmx2g -XX:ReservedCodeCacheSize=512m"
-#RUN /spark/dev/make-distribution.sh "-Pyarn,hadoop-provided,hadoop-3.1,parquet-provided,orc-provided" \
+#RUN /spark/dev/make-distribution.sh -Pyarn -Phadoop-3.2 -Dhadoop.version=$HADOOP_VERSION -Dhive.version=$HIVE_VERSION -Dhive.version.short=$HIVE_VERSION   \
+#    -Phive -DskipTests clean package
 #    && mv /spark/dist $SPARK_HOME \
 #    && rm -rf /spark
 
@@ -86,14 +86,14 @@ ENV YARN_RESOURCEMANAGER_USER="root"
 ENV YARN_NODEMANAGER_USER="root"
 ENV LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH
 ENV HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+ENV HADOOP_LOG_DIR=${HADOOP_HOME}/logs
 COPY conf/hadoop/core-site.xml $HADOOP_CONF_DIR
 COPY conf/hadoop/hadoop-env.sh $HADOOP_CONF_DIR
 COPY conf/hadoop/hdfs-site.xml $HADOOP_CONF_DIR
 COPY conf/hadoop/mapred-site.xml $HADOOP_CONF_DIR
 COPY conf/hadoop/workers $HADOOP_CONF_DIR
 COPY conf/hadoop/yarn-site.xml $HADOOP_CONF_DIR
-RUN mkdir $HADOOP_HOME/logs
-#RUN export HADOOP_DATANODE_OPTS="$HADOOP_DATANODE_OPTS"
+RUN mkdir $HADOOP_LOG_DIR
 
 # Hive setup
 ENV PATH="$PATH:$HIVE_HOME/bin"
@@ -108,14 +108,10 @@ COPY conf/hadoop/core-site.xml $SPARK_CONF_DIR/
 COPY conf/hadoop/hdfs-site.xml $SPARK_CONF_DIR/
 COPY conf/spark/spark-defaults.conf $SPARK_CONF_DIR/
 
-# For inscrutable reasons, Spark distribution doesn't include spark-hive.jar
-ARG SCALA_VERSION=2.11
-RUN curl --progress-bar -L \
-    "https://repo1.maven.org/maven2/org/apache/spark/spark-hive_$SCALA_VERSION/${SPARK_VERSION}/spark-hive_$SCALA_VERSION-${SPARK_VERSION}.jar" \
-    --output "$SPARK_HOME/jars/spark-hive_$SCALA_VERSION-${SPARK_VERSION}.jar"
-
-# Hive on Spark
-# https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started
+# Spark with Hive
+# TODO enable when they remove HIVE_STATS_JDBC_TIMEOUT
+# https://github.com/apache/spark/commit/1d95dea30788b9f64c5e304d908b85936aafb238#diff-842e3447fc453de26c706db1cac8f2c4
+# https://issues.apache.org/jira/browse/SPARK-13446
 #ENV SPARK_DIST_CLASSPATH=$SPARK_DIST_CLASSPATH:$HIVE_HOME/lib/*
 #COPY conf/hive/hive-site.xml $SPARK_CONF_DIR/
 #RUN ln -s $SPARK_HOME/jars/scala-library-*.jar $HIVE_HOME/lib \

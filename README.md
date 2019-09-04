@@ -8,7 +8,7 @@ in one command. This is how this repository came to be!
 
 *Software:*
 
-[Hadoop 3.2.0 in Fully Distributed (Multi-node) Mode](https://hadoop.apache.org/) 
+[Hadoop 3.1.2 in Fully Distributed (Multi-node) Mode](https://hadoop.apache.org/) 
 
 [Hive 3.1.2 ](https://hadoop.apache.org/) 
 
@@ -47,12 +47,14 @@ docker-compose down
 ## Checking if everything plays well together
 * Hadoop and YARN:
 
-Check [YARN Web UI (localhost:8088)](http://localhost:8088/). You should see 2 active nodes there.
+Check [YARN (Hadoop ResourceManager) Web UI
+(localhost:8088)](http://localhost:8088/).
+You should see 2 active nodes there.
 
-Then, [Hadoop Master Node UI (localhost:9870)](http://localhost:9870), worker UIs at
-[http://localhost:9864](http://localhost:9864) 
-( TODO and [http://localhost:9865](http://localhost:9865)): all of those
-URLs should result in a page.
+Then, [Hadoop Name Node UI (localhost:9870)](http://localhost:9870),
+Hadoop Data Node UIs at
+[http://localhost:9864](http://localhost:9864) and [http://localhost:9865](http://localhost:9865):
+all of those URLs should result in a page.
 
 Open up a shell in the master node.
 ```bash
@@ -100,8 +102,10 @@ hadoop fs -put /data/grades.csv /
 hadoop fs -ls /
 ```
 <pre>
-Found 1 items
+Found N items
+...
 -rw-r--r--   2 root supergroup  ... /grades.csv
+...
 </pre>
 
 Ctrl+D out of master now. Repeat for remaining nodes 
@@ -131,7 +135,8 @@ jps
 </pre>
 
 * Hive
-Prereqisite: there's a file grades.csv stored in HDFS ( hadoop fs -put /data/grades.csv / )
+
+Prerequisite: there's a file grades.csv stored in HDFS ( hadoop fs -put /data/grades.csv / )
 ```bash
 docker-compose exec master bash
 hive
@@ -198,6 +203,7 @@ SELECT * FROM grades;
 ```
 You should be able to see the same table.
 * Spark
+
 Open up [Spark Master Web UI (localhost:8080)](http://localhost:8080/):
 <pre>
 Workers (2)
@@ -205,8 +211,7 @@ Worker Id	Address	State	Cores	Memory
 worker-timestamp-172.28.1.3-8882	172.28.1.3:8882	ALIVE	2 (0 Used)	1024.0 MB (0.0 B Used)
 worker-timestamp-172.28.1.2-8881	172.28.1.2:8881	ALIVE	2 (0 Used)	1024.0 MB (0.0 B Used)
 </pre>
-
-,also worker UIs at  [localhost:8081](http://localhost:8081/)
+, also worker UIs at  [localhost:8081](http://localhost:8081/)
 and  [localhost:8082](http://localhost:8082/). All those pages should be
 accessible.
 
@@ -227,6 +232,9 @@ spark-submit --class org.apache.spark.examples.SparkPi \
 <pre>
 INFO spark.SparkContext: Running Spark version 2.4.4
 INFO spark.SparkContext: Submitted application: Spark Pi
+..
+INFO client.RMProxy: Connecting to ResourceManager at master/172.28.1.1:8032
+INFO yarn.Client: Requesting a new application from cluster with 2 NodeManagers
 ...
 INFO yarn.Client: Application report for application_1567375394688_0001 (state: ACCEPTED)
 ...
@@ -244,10 +252,23 @@ spark-shell
 ```
 ```scala
 spark.range(1000 * 1000 * 1000).count()
+
 val df = spark.read.format("csv").option("header", "true").load("/grades.csv")
 df.show()
+
+spark.sql("SHOW DATABASES").show()
+
+df.createOrReplaceTempView("df")
+spark.sql("SELECT * FROM df WHERE Final > 50").show()
+
+//TODO SELECT TABLE from hive - not working for now.
+spark.sql("SELECT * FROM grades").show()
 ```
 <pre>
+Spark context Web UI available at http://localhost:4040
+Spark context available as 'sc' (master = yarn, app id = application_N).
+Spark session available as 'spark'.
+
 res0: Long = 1000000000
 
 df: org.apache.spark.sql.DataFrame = [Last name: string, First name: string ... 7 more fields]
@@ -259,58 +280,64 @@ df: org.apache.spark.sql.DataFrame = [Last name: string, First name: string ... 
 ...
 |Heffalump|    Harvey|632-79-9439|   30|    1|   20|   30|   40|    C|
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
+
++------------+
+|databaseName|
++------------+
+|     default|
++------------+
+
++---------+----------+-----------+-----+-----+-----+-----+-----+-----+
+|Last name|First name|        SSN|Test1|Test2|Test3|Test4|Final|Grade|
++---------+----------+-----------+-----+-----+-----+-----+-----+-----+
+|  Airpump|    Andrew|223-45-6789|   49|    1|   90|  100|   83|    A|
+|   Backus|       Jim|143-12-1234|   48|    1|   97|   96|   97|   A+|
+| Elephant|       Ima|456-71-9012|   45|    1|   78|   88|   77|   B-|
+| Franklin|     Benny|234-56-2890|   50|    1|   90|   80|   90|   B-|
++---------+----------+-----------+-----+-----+-----+-----+-----+-----+
 </pre>
+Ctrl+D out of Scala shell now.
 ```bash
 pyspark
 ```
 ```python
 spark.range(1000 * 1000 * 1000).count()
+
 df = spark.read.format("csv").option("header", "true").load("/grades.csv")
 df.show()
+
+spark.sql("SHOW DATABASES").show()
+
+df.createOrReplaceTempView("df")
+spark.sql("SELECT * FROM df WHERE Final > 50").show()
+
+# TODO SELECT TABLE from hive - not working for now.
+spark.sql("SELECT * FROM grades").show()
 ```
 <pre>
 1000000000
 
-$same_table_as_above
+$same_tables_as_above
 </pre>
-```python
-# TODO SELECT TABLE from hive - dont create a new one
-spark = SparkSession.builder.enableHiveSupport().getOrCreate()
-spark.sql("SHOW DATABASES")
-spark.sql("CREATE TABLE grades2( \
-    `Last name` STRING,  \
-    `First name` STRING,  \
-    `SSN` STRING,  \
-    `Test1` DOUBLE, \
-    `Test2` INT, \
-    `Test3` DOUBLE, \
-    `Test4` DOUBLE, \
-    `Final` DOUBLE, \
-    `Grade` STRING) \
-USING hive")
-spark.sql("LOAD DATA INPATH '/grades.csv' INTO TABLE grades2")
-spark.sql("SELECT * FROM grades2").show()
-```
 
 * Zeppelin
+
 Zeppelin interface should be available at [http://localhost:8890](http://localhost:8890).
 
+You'll find a notebook called "test" in there, containing commands
+to test integration with bash, Spark and Livy.
+
 * Livy
-Livy is at [http://localhost:8998](http://localhost:8998).
+
+Livy is at [http://localhost:8998](http://localhost:8998) (and yes,
+there's a web UI as well as REST API on that port - just click the link).
+
 Try to poll the REST API:
 ```bash
 curl --request GET \
   --url http://localhost:8998/sessions
 ```
 >{"from": 0,"total": 0,"sessions": []}
-
-## Doing a thing in ...
-
-* Zeppelin:
-
-There's a notebook ready with all test commands already.
-
-* Livy:
 
 1) Create a session
 ```bash
@@ -322,45 +349,74 @@ curl --request POST \
 }'
 ```
 
-2) Post a statement
+2) Wait for session to start (state will transition from "starting"
+to "idle"):
+```bash
+curl --request GET \
+  --url http://localhost:8998/sessions/0 | python -mjson.tool
+```
+>{"id":0, ... "state":"idle", ...
+
+3) Post a statement
 ```bash
 curl --request POST \
   --url http://localhost:8998/sessions/0/statements \
   --header 'content-type: application/json' \
   --data '{
-	"code": "import sys;df = sc.parallelize(range(10));print(df.collect());print(sys.version)"
+	"code": "import sys;print(sys.version)"
+}'
+curl --request POST \
+  --url http://localhost:8998/sessions/0/statements \
+  --header 'content-type: application/json' \
+  --data '{
+	"code": "spark.range(1000 * 1000 * 1000).count()"
 }'
 ```
-3) Get the result:
+
+4) Get the result:
 ```bash
 curl --request GET \
-  --url http://localhost:8998/sessions/0/statements
+  --url http://localhost:8998/sessions/0/statements | python -mjson.tool
 ```
-Here's what you're supposed to see in response:
 ```
 {
-  "total_statements": 1,
+  "total_statements": 2,
   "statements": [
     {
       "id": 0,
+      "code": "import sys;print(sys.version)",
       "state": "available",
       "output": {
         "status": "ok",
         "execution_count": 0,
         "data": {
-          "text/plain": "TODO"
+          "text/plain": "3.7.3 (default, Apr  3 2019, 19:16:38) \n[GCC 8.0.1 20180414 (experimental) [trunk revision 259383]]"
         }
-      }
+      },
+      "progress": 1.0
+    },
+    {
+      "id": 1,
+      "code": "spark.range(1000 * 1000 * 1000).count()",
+      "state": "available",
+      "output": {
+        "status": "ok",
+        "execution_count": 1,
+        "data": {
+          "text/plain": "1000000000"
+        }
+      },
+      "progress": 1.0
     }
   ]
 }
 ```
 
 ## TODO
-docker run --rm -i hadolint/hadolint < Dockerfile
-alpine
-hive on spark https://cwiki.apache.org/confluence/display/Hive/Hive+on+Spark%3A+Getting+Started
-generate ssh keys on the fly
-remove all unnecessary conf properties.
-try newer version of hive when 2.3.6 works with spark
-extract common image
+* docker run --rm -i hadolint/hadolint < Dockerfile
+* alpine
+* generate ssh keys on the fly (or get rid of ssh at all, run scripts intended only for this node)
+* upgrade spark to work with newer versions of hive.
+* try newer versions of hive and hadoop
+* extract common image
+* more customized healthcheck commands

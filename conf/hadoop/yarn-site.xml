@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
+<!-- http://hadoop.apache.org/docs/r3.1.2/hadoop-project-dist/hadoop-common/ClusterSetup.html -->
 <configuration>
-
-    <!-- http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/ClusterSetup.html -->
-    <!-- https://mapr.com/blog/best-practices-yarn-resource-management/ -->
-    <!-- Site specific YARN configuration properties -->
 
     <!-- Single hostname that can be set in place of setting all
     yarn.resourcemanager*address resources. Results in default ports
