@@ -13,7 +13,12 @@ $HADOOP_HOME/sbin/start-yarn.sh
 # Hive
 if [ ! -z "$HIVE_CONFIGURE" ]; then
   schematool -dbType postgres -initSchema
+
+  # Start metastore service.
   hive --service metastore &
+
+  # JDBC Server.
+  hiveserver2 &
 fi
 
 # Spark on YARN

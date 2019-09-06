@@ -12,6 +12,8 @@ RUN curl --progress-bar -L --retry 3 \
 
 ENV MASTER=yarn-client
 ENV PATH="$PATH:$ZEPPELIN_HOME/bin"
+ENV ZEPPELIN_CONF_DIR $ZEPPELIN_HOME/conf
+COPY conf/interpreter.json $ZEPPELIN_CONF_DIR
 
 HEALTHCHECK CMD curl -f http://host.docker.internal:8890/ || exit 1
 

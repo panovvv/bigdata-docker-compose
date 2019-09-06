@@ -10,6 +10,7 @@ services:
       SPARK_LOCAL_IP: 172.28.1.1
       SPARK_MASTER_HOST: 172.28.1.1
       SPARK_LOCAL_HOSTNAME: master
+      HIVE_CONFIGURE: this node does the initial configuration of Hive because this var isn't empty.
     expose:
       - 1-65535
     ports:
@@ -52,7 +53,6 @@ services:
       SPARK_LOCAL_HOSTNAME: worker1
       SPARK_LOCAL_IP: 172.28.1.2
       SPARK_MASTER_HOST: 172.28.1.1
-      HIVE_CONFIGURE: this node does the initial configuration of Hive because this var isn't empty.
     expose:
       - 1-65535
     ports:

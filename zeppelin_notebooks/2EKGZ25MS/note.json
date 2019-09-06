@@ -7,10 +7,22 @@
       "text": "%sh\n\nhadoop fs -ls /"
     },
     {
+      "text": "%jdbc\n\nCREATE TABLE grades(\n    `Last name` STRING,\n    `First name` STRING,\n    `SSN` STRING,\n    `Test1` DOUBLE,\n    `Test2` INT,\n    `Test3` DOUBLE,\n    `Test4` DOUBLE,\n    `Final` DOUBLE,\n    `Grade` STRING)\nCOMMENT \u0027https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html\u0027\nROW FORMAT DELIMITED\nFIELDS TERMINATED BY \u0027,\u0027\nSTORED AS TEXTFILE\ntblproperties(\"skip.header.line.count\"\u003d\"1\")"
+    },
+    {
+      "text": "%jdbc\n\nLOAD DATA INPATH \u0027/grades.csv\u0027 INTO TABLE grades"
+    },
+    {
+      "text": "%jdbc\n\nSELECT * FROM grades"
+    },
+    {
       "text": "%spark\n\n// Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
       "text": "%spark\n\n// Dataframes\nval values \u003d List(List(\"1\", \"One\") ,List(\"2\", \"Two\") ,List(\"3\", \"Three\"),List(\"4\",\"Four\")).map(x \u003d\u003e(x(0), x(1)))\nval df \u003d values.toDF\ndf.show()"
+    },
+    {
+      "text": "%sh\n\n# Put the file back into HDFS - it was moved to warehouse directory when we loaded it with Hive.\nhadoop fs -put /data/grades.csv /"
     },
     {
       "text": "%spark\n\n// Read CSV file from HDFS into Dataframe\nval df \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
@@ -28,7 +40,13 @@
       "text": "%spark.pyspark\n\n# Read CSV file from HDFS into Dataframe\ndf \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
     },
     {
-      "text": "%spark.r\n# Not working right now, needs R to be installed\ndf \u003c- as.DataFrame(list(1,2,3,4,5,6))\nhead(df)"
+      "text": "%spark.r\n\n# Not working right now, needs R to be installed\ndf \u003c- as.DataFrame(list(1,2,3,4,5,6))\nhead(df)"
+    },
+    {
+      "text": "%livy\n\n// Spark over Livy\nspark.range(1000 * 1000 * 1000).count()"
+    },
+    {
+      "text": "%livy.pyspark\n\n#  PySpark over Livy\nspark.range(1000 * 1000 * 1000).count()"
     }
   ],
   "name": "test",

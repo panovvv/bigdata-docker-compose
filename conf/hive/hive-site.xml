@@ -50,4 +50,14 @@
         <name>spark.yarn.jars</name>
         <value>hdfs://master:9000/spark-jars/*</value>
     </property>
+
+    <!-- To be able to execute Hive queries from Zeppelin -->
+    <property>
+        <name>hive.server2.enable.doAs</name>
+        <value>false</value>
+        <description>
+            Setting this property to true will have HiveServer2 execute
+            Hive operations as the user making the calls to it.
+        </description>
+    </property>
 </configuration>
