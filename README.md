@@ -420,3 +420,4 @@ curl --request GET \
 * try newer versions of hive and hadoop
 * extract common image
 * more customized healthcheck commands
+* roll back dependencies hack when zeppelin 0.8.2 is out https://issues.apache.org/jira/browse/ZEPPELIN-3939

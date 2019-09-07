@@ -19,7 +19,7 @@
       "text": "%spark\n\n// Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
-      "text": "%spark\n\n// Dataframes\nval values \u003d List(List(\"1\", \"One\") ,List(\"2\", \"Two\") ,List(\"3\", \"Three\"),List(\"4\",\"Four\")).map(x \u003d\u003e(x(0), x(1)))\nval df \u003d values.toDF\ndf.show()"
+      "text": "%spark\n\n// Dataframes\nval df \u003d Seq(\n  (\"One\", 1),\n  (\"Two\", 2),\n  (\"Three\", 3),\n  (\"Four\", 4)\n).toDF(\"This is\", \"an example\")\ndf.show()",
     },
     {
       "text": "%sh\n\n# Put the file back into HDFS - it was moved to warehouse directory when we loaded it with Hive.\nhadoop fs -put /data/grades.csv /"
@@ -34,7 +34,7 @@
       "text": "%spark.pyspark\n\n#  Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
-      "text": "%spark.pyspark\n\n# Dataframes\ndf \u003d sqlContext.createDataFrame([(\"One\", 1), (\"Two\", 2), (\"Three\", 3), (\"Four\", 4)], (\u0027k\u0027, \u0027v\u0027))\ndf.show()"
+      "text": "%spark.pyspark\n\n# Dataframes\ndf \u003d sqlContext.createDataFrame([(\"One\", 1), (\"Two\", 2), (\"Three\", 3), (\"Four\", 4)], (\"This is\", \"an example\"))\ndf.show()",
     },
     {
       "text": "%spark.pyspark\n\n# Read CSV file from HDFS into Dataframe\ndf \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
