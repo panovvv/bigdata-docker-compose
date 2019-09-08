@@ -45,6 +45,13 @@ docker-compose down
 ```
 
 ## Checking if everything plays well together
+You can quickly check everything by opening the
+[bundled Zeppelin notebook](http://localhost:8890/#/notebook/2EKGZ25MS)
+and running all paragraphs.
+
+Alternatively, to get a sense of
+how it all works under the hood, follow the instructions below:
+
 * Hadoop and YARN:
 
 Check [YARN (Hadoop ResourceManager) Web UI

@@ -19,6 +19,9 @@
       "text": "%jdbc\n\nSELECT * FROM grades"
     },
     {
+      "text": "%sh\n\n# Take a look at the warehouse directory, specifically where our Hive table is stored.\n hadoop fs -ls /usr/hive/warehouse/grades"
+    },
+    {
       "text": "%sh\n\n# Put the file back into HDFS - it was moved to warehouse directory when we loaded it with Hive.\nhadoop fs -put /data/grades.csv /\nhadoop fs -ls /"
     },
     {
@@ -29,6 +32,12 @@
     },
     {
       "text": "%spark\n\n// Read CSV file from HDFS into Dataframe\nval df \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
+    },
+    {
+      "text": "%spark\n\n// Spark SQL and temporary views\ndf.createOrReplaceTempView(\"df\")\nspark.sql(\"SHOW TABLES\").show()"
+    },
+    {
+      "text": "%spark\n\nspark.sql(\"SELECT * FROM df WHERE Final > 50\").show()"
     },
     {
       "text": "%spark.pyspark\n\n# Check Python version - 2 not allowed.\nimport sys\nprint(sys.version)"

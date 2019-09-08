@@ -5,6 +5,8 @@ services:
     hostname: master
     depends_on:
       - hivemetastore
+      - worker1
+      - worker2
     environment:
       SPARK_PUBLIC_DNS: localhost
       SPARK_LOCAL_IP: 172.28.1.1
@@ -134,6 +136,10 @@ services:
   zeppelin:
     build: './docker_zeppelin'
     hostname: zeppelin
+    depends_on:
+      - master
+      - worker1
+      - worker2
     volumes:
       - ./zeppelin_notebooks:/zeppelin_notebooks
       - ./data:/data
@@ -157,6 +163,10 @@ services:
   livy:
     build: './docker_livy'
     hostname: livy
+    depends_on:
+      - master
+      - worker1
+      - worker2
     volumes:
       - ./livy_batches:/livy_batches
       - ./data:/data
