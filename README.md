@@ -12,7 +12,7 @@ in one command. This is how this repository came to be!
 
 [Hive 3.1.2 ](https://hadoop.apache.org/) 
 
-[Spark 2.4.4 in YARN mode](https://spark.apache.org/) 
+[Spark 2.4.4 in YARN mode](https://spark.apache.org/) (Spark Scala, PySpark and SparkR)
 
 [Zeppelin 0.8.1](https://zeppelin.apache.org/) 
 
@@ -245,7 +245,8 @@ Pi is roughly 3.138915138915139
 ...
 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-81ea2c22-d96e-4d7c-a8d7-9240d8eb22ce
 </pre>
-
+Spark has 3 interactive shells: spark-shell to code in Scala,
+pyspark for Python and sparkR for R. Let's try them all out:
 ```bash
 hadoop fs -put /data/grades.csv /
 spark-shell
@@ -256,9 +257,8 @@ spark.range(1000 * 1000 * 1000).count()
 val df = spark.read.format("csv").option("header", "true").load("/grades.csv")
 df.show()
 
-spark.sql("SHOW DATABASES").show()
-
 df.createOrReplaceTempView("df")
+spark.sql("SHOW TABLES").show()
 spark.sql("SELECT * FROM df WHERE Final > 50").show()
 
 //TODO SELECT TABLE from hive - not working for now.
@@ -281,11 +281,11 @@ df: org.apache.spark.sql.DataFrame = [Last name: string, First name: string ... 
 |Heffalump|    Harvey|632-79-9439|   30|    1|   20|   30|   40|    C|
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
 
-+------------+
-|databaseName|
-+------------+
-|     default|
-+------------+
++--------+---------+-----------+
+|database|tableName|isTemporary|
++--------+---------+-----------+
+|        |       df|       true|
++--------+---------+-----------+
 
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
 |Last name|First name|        SSN|Test1|Test2|Test3|Test4|Final|Grade|
@@ -306,9 +306,8 @@ spark.range(1000 * 1000 * 1000).count()
 df = spark.read.format("csv").option("header", "true").load("/grades.csv")
 df.show()
 
-spark.sql("SHOW DATABASES").show()
-
 df.createOrReplaceTempView("df")
+spark.sql("SHOW TABLES").show()
 spark.sql("SELECT * FROM df WHERE Final > 50").show()
 
 # TODO SELECT TABLE from hive - not working for now.
@@ -316,6 +315,23 @@ spark.sql("SELECT * FROM grades").show()
 ```
 <pre>
 1000000000
+
+$same_tables_as_above
+</pre>
+
+```R
+df <- as.DataFrame(list("One", "Two", "Three", "Four"), "This is as example")
+head(df)
+
+df <- read.df("/grades.csv", "csv", header="true")
+head(df)
+```
+<pre>
+  This is as example
+1                One
+2                Two
+3              Three
+4               Four
 
 $same_tables_as_above
 </pre>
@@ -331,6 +347,8 @@ to test integration with bash, Spark and Livy.
 
 Livy is at [http://localhost:8998](http://localhost:8998) (and yes,
 there's a web UI as well as REST API on that port - just click the link).
+
+* Livy Sessions:
 
 Try to poll the REST API:
 ```bash
@@ -357,7 +375,7 @@ curl --request GET \
 ```
 >{"id":0, ... "state":"idle", ...
 
-3) Post a statement
+3) Post some statements
 ```bash
 curl --request POST \
   --url http://localhost:8998/sessions/0/statements \
@@ -378,7 +396,7 @@ curl --request POST \
 curl --request GET \
   --url http://localhost:8998/sessions/0/statements | python -mjson.tool
 ```
-```
+```json
 {
   "total_statements": 2,
   "statements": [
@@ -411,10 +429,48 @@ curl --request GET \
   ]
 }
 ```
+* Livy Batches:
+```bash
+curl --request POST \
+  --url http://localhost:8998/batches \
+  --header 'content-type: application/json' \
+  --data '{
+	"file": "local:/livy_batches/example.py",
+	"pyFiles": [
+		"local:/livy_batches/example.py"
+	],
+	"args": [
+		"10"
+	]
+}'
+curl --request GET \
+  --url http://localhost:8998/batches/0 | python -mjson.tool
+# You can manipulate 'to' and 'from' params to get all log lines,
+# no more than 100 at a time is supported.
+curl --request GET \
+  --url 'http://localhost:8998/batches/0/log?from=100&to=200' | python -mjson.tool
+```
+```json
+{
+  "id": 0,
+  "from": 100,
+  "total": 149,
+  "log": [
+    "...",
+    "INFO scheduler.DAGScheduler: Job 0 finished: reduce at /livy_batches/example.py:28, took 1.733666 s",
+    "Pi is roughly 3.142788",
+    "3.7.3 (default, Apr  3 2019, 19:16:38) ",
+    "[GCC 8.0.1 20180414 (experimental) [trunk revision 259383]]",
+    "INFO server.AbstractConnector: Stopped Spark@3a1aa7a3{HTTP/1.1,[http/1.1]}{0.0.0.0:4040}"
+    "...",
+    "\nstderr: "
+  ]
+}
+```
 
 ## TODO
 * docker run --rm -i hadolint/hadolint < Dockerfile
-* alpine
+* use alpine as a base image, trim the fat https://github.com/wagoodman/dive
 * generate ssh keys on the fly (or get rid of ssh at all, run scripts intended only for this node)
 * upgrade spark to work with newer versions of hive.
 * try newer versions of hive and hadoop

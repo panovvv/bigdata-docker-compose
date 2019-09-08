@@ -1,10 +1,13 @@
 {
   "paragraphs": [
     {
-      "text": "%sh\n\nhadoop fs -put /data/grades.csv /"
+      "text": "%sh\n\n#Only load a file to HDFS if it's not already there - because of this you can run all paragraphs as many times as you like.\nhadoop fs -test -e /grades.csv\n\nif [[ $? != 0 ]] ;\nthen\n    hadoop fs -put /data/grades.csv /\nfi"
     },
     {
       "text": "%sh\n\nhadoop fs -ls /"
+    },
+    {
+      "text": "%jdbc\n\n-- Does not support more than one statement per paragraph, it seems. Same goes for semicolon at the end of statements - errors out if you include it.\nDROP TABLE IF EXISTS grades"
     },
     {
       "text": "%jdbc\n\nCREATE TABLE grades(\n    `Last name` STRING,\n    `First name` STRING,\n    `SSN` STRING,\n    `Test1` DOUBLE,\n    `Test2` INT,\n    `Test3` DOUBLE,\n    `Test4` DOUBLE,\n    `Final` DOUBLE,\n    `Grade` STRING)\nCOMMENT \u0027https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html\u0027\nROW FORMAT DELIMITED\nFIELDS TERMINATED BY \u0027,\u0027\nSTORED AS TEXTFILE\ntblproperties(\"skip.header.line.count\"\u003d\"1\")"
@@ -16,13 +19,13 @@
       "text": "%jdbc\n\nSELECT * FROM grades"
     },
     {
+      "text": "%sh\n\n# Put the file back into HDFS - it was moved to warehouse directory when we loaded it with Hive.\nhadoop fs -put /data/grades.csv /\nhadoop fs -ls /"
+    },
+    {
       "text": "%spark\n\n// Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
-      "text": "%spark\n\n// Dataframes\nval df \u003d Seq(\n  (\"One\", 1),\n  (\"Two\", 2),\n  (\"Three\", 3),\n  (\"Four\", 4)\n).toDF(\"This is\", \"an example\")\ndf.show()",
-    },
-    {
-      "text": "%sh\n\n# Put the file back into HDFS - it was moved to warehouse directory when we loaded it with Hive.\nhadoop fs -put /data/grades.csv /"
+      "text": "%spark\n\n// Dataframes\nval df \u003d Seq(\n  (\"One\", 1),\n  (\"Two\", 2),\n  (\"Three\", 3),\n  (\"Four\", 4)\n).toDF(\"This is\", \"an example\")\ndf.show()"
     },
     {
       "text": "%spark\n\n// Read CSV file from HDFS into Dataframe\nval df \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
@@ -34,19 +37,25 @@
       "text": "%spark.pyspark\n\n#  Basic Spark functions\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
-      "text": "%spark.pyspark\n\n# Dataframes\ndf \u003d sqlContext.createDataFrame([(\"One\", 1), (\"Two\", 2), (\"Three\", 3), (\"Four\", 4)], (\"This is\", \"an example\"))\ndf.show()",
+      "text": "%spark.pyspark\n\n# Dataframes\ndf \u003d sqlContext.createDataFrame([(\"One\", 1), (\"Two\", 2), (\"Three\", 3), (\"Four\", 4)], (\"This is\", \"an example\"))\ndf.show()"
     },
     {
       "text": "%spark.pyspark\n\n# Read CSV file from HDFS into Dataframe\ndf \u003d spark.read.format(\"csv\").option(\"header\", \"true\").load(\"/grades.csv\")\ndf.show()"
     },
     {
-      "text": "%spark.r\n\n# Not working right now, needs R to be installed\ndf \u003c- as.DataFrame(list(1,2,3,4,5,6))\nhead(df)"
+      "text": "%spark.r\n\n# Dataframes\ndf \u003c- as.DataFrame(list(\"One\", \"Two\", \"Three\", \"Four\"), \"This is as example\")\nhead(df)"
     },
     {
-      "text": "%livy\n\n// Spark over Livy\nspark.range(1000 * 1000 * 1000).count()"
+      "text": "%spark.r\n\n# Read CSV file from HDFS into Dataframe\ndf \u003c- read.df(\"/grades.csv\", \"csv\", header\u003d\"true\")\nhead(df)"
+    },
+    {
+      "text": "%livy\n\n// Scala Spark over Livy\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
       "text": "%livy.pyspark\n\n#  PySpark over Livy\nspark.range(1000 * 1000 * 1000).count()"
+    },
+    {
+      "text": "%livy.sparkr\n\n# SparkR over Livy\ndf \u003c- as.DataFrame(list(\"One\", \"Two\", \"Three\", \"Four\"), \"This is as example\")\nhead(df)"
     }
   ],
   "name": "test",

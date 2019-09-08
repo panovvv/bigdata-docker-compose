@@ -2,24 +2,20 @@ FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Java, Python and OS utils to download and exract images
+# Java and OS utils to download and exract images
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl=7.58.0-2ubuntu3.7 \
         unzip=6.0-21ubuntu1 \
         ssh=1:7.6p1-4ubuntu0.3 \
-        python3.7=3.7.3-2~18.04.1 \
-        libpython3.7=3.7.3-2~18.04.1 \
-        python3.7-dev=3.7.3-2~18.04.1 \
         openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
- && ln -s /usr/bin/python3.7 /usr/bin/python \
  && rm -rf /var/lib/apt/lists/*
-#        git=1:2.17.1-1ubuntu0.4 \
+
+# https://github.com/hadolint/hadolint/wiki/DL4006
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Hadoop
 ARG HADOOP_VERSION=3.1.2
 ENV HADOOP_HOME /usr/hadoop
-# https://github.com/hadolint/hadolint/wiki/DL4006
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl --progress-bar -L --retry 3 \
   "http://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz" \
   | gunzip \
@@ -62,6 +58,7 @@ RUN curl --progress-bar -L \
     "https://repo1.maven.org/maven2/org/apache/spark/spark-hive_$SCALA_VERSION/${SPARK_VERSION}/spark-hive_$SCALA_VERSION-${SPARK_VERSION}.jar" \
     --output "$SPARK_HOME/jars/spark-hive_$SCALA_VERSION-${SPARK_VERSION}.jar"
 
+# Alternative to lines above: clone from version branch and build a distribution.
 #RUN git clone --progress --single-branch --branch branch-2.4 \
 #    https://github.com/apache/spark.git
 #ENV MAVEN_OPTS="-Xmx2g -XX:ReservedCodeCacheSize=512m"
@@ -69,6 +66,26 @@ RUN curl --progress-bar -L \
 #    -Phive -DskipTests clean package
 #    && mv /spark/dist $SPARK_HOME \
 #    && rm -rf /spark
+
+# PySpark - comment out if you don't want it to save image space
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3.7=3.7.3-2~18.04.1 \
+        libpython3.7=3.7.3-2~18.04.1 \
+        python3.7-dev=3.7.3-2~18.04.1 \
+ && ln -s /usr/bin/python3.7 /usr/bin/python \
+ && rm -rf /var/lib/apt/lists/*
+
+# SparkR - comment out if you don't want it to save image space
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gnupg=2.2.4-1ubuntu1.2 \
+        software-properties-common=0.96.24.32.11\
+ && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+ && add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/' \
+ && apt-get update && apt-get install  -y --no-install-recommends \
+    r-base=3.6.1-3bionic \
+    r-base-dev=3.6.1-3bionic \
+ && rm -rf /var/lib/apt/lists/* \
+ && R -e 'install.packages("knitr")'
 
 # Common settings
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
