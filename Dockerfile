@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Java and OS utils to download and exract images
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl=7.58.0-2ubuntu3.7 \
+        curl=7.58.0-2ubuntu3.8 \
         unzip=6.0-21ubuntu1 \
         ssh=1:7.6p1-4ubuntu0.3 \
         openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
