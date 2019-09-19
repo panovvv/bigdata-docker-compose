@@ -1,5 +1,8 @@
 FROM bigdata-docker-compose_master:latest
 
+# https://github.com/hadolint/hadolint/wiki/DL4006
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG ZEPPELIN_VERSION=0.8.1
 ENV ZEPPELIN_HOME /usr/zeppelin
 ENV ZEPPELIN_PACKAGE zeppelin-$ZEPPELIN_VERSION-bin-all

@@ -476,7 +476,6 @@ curl --request GET \
 ```
 
 ## TODO
-* docker run --rm -i hadolint/hadolint < Dockerfile
 * use alpine as a base image, trim the fat https://github.com/wagoodman/dive
 * generate ssh keys on the fly (or get rid of ssh at all, run scripts intended only for this node)
 * upgrade spark to work with newer versions of hive.

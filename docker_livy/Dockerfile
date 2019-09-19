@@ -17,7 +17,7 @@ ENV MASTER yarn
 ENV DEPLOY_MODE client
 COPY conf/livy.conf ${LIVY_CONF_DIR}/livy.conf
 
-ADD entrypoint.sh /
+COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 HEALTHCHECK CMD curl -f http://host.docker.internal:$LIVY_PORT/ || exit 1
