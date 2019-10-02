@@ -14,7 +14,7 @@ in one command. This is how this repository came to be!
 
 [Spark 2.4.4 in YARN mode](https://spark.apache.org/) (Spark Scala, PySpark and SparkR)
 
-[Zeppelin 0.8.1](https://zeppelin.apache.org/) 
+[Zeppelin 0.8.2](https://zeppelin.apache.org/) 
 
 [Livy 0.6.0-incubating](https://livy.incubator.apache.org/docs/latest/rest-api.html)
 
@@ -38,6 +38,16 @@ Bring everything up:
 cd bigdata-docker-compose
 docker-compose up -d
 ```
+
+* **data/** directory is mounted into every container, you can use this as
+a storage both for files you want to process using Hive/Spark/whatever
+and results of those computations.
+* **livy_batches/** directory is where you have some sample code for
+Livy batch processing mode. It's mounted to the node where Livy
+is running. You can store your code there as well, or make use of the
+universal **data/**.
+* **zeppelin_notebooks/** contains, quite predictably, notebook files
+for Zeppelin. Thanks to that, all your notebooks persist across runs.
 
 To shut the whole thing down, run this from the same folder:
 ```bash
@@ -143,7 +153,7 @@ jps
 
 * Hive
 
-Prerequisite: there's a file grades.csv stored in HDFS ( hadoop fs -put /data/grades.csv / )
+Prerequisite: there's a file grades.csv stored in HDFS ( `hadoop fs -put /data/grades.csv /` )
 ```bash
 docker-compose exec master bash
 hive
@@ -482,4 +492,3 @@ curl --request GET \
 * try newer versions of hive and hadoop
 * extract common image
 * more customized healthcheck commands
-* roll back dependencies hack when zeppelin 0.8.2 is out https://issues.apache.org/jira/browse/ZEPPELIN-3939

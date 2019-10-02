@@ -1377,15 +1377,6 @@
           }
         }
       ],
-      "dependencies": [
-        {
-          "groupArtifactVersion": "org.apache.commons:commons-lang3:3.7",
-          "local": false,
-          "exclusions": [
-            "org.apache.commons:commons-lang3:3.4"
-          ]
-        }
-      ],
       "option": {
         "remote": true,
         "port": -1,
