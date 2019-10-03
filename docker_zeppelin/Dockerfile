@@ -1,4 +1,4 @@
-FROM bigdata-docker-compose_master:latest
+FROM bigdata-docker-compose_worker1:latest
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

@@ -262,6 +262,7 @@ Pi is roughly 3.138915138915139
 ...
 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-81ea2c22-d96e-4d7c-a8d7-9240d8eb22ce
 </pre>
+
 Spark has 3 interactive shells: spark-shell to code in Scala,
 pyspark for Python and sparkR for R. Let's try them all out:
 ```bash
@@ -314,6 +315,7 @@ df: org.apache.spark.sql.DataFrame = [Last name: string, First name: string ... 
 +---------+----------+-----------+-----+-----+-----+-----+-----+-----+
 </pre>
 Ctrl+D out of Scala shell now.
+
 ```bash
 pyspark
 ```
@@ -335,7 +337,11 @@ spark.sql("SELECT * FROM grades").show()
 
 $same_tables_as_above
 </pre>
+Ctrl+D out of PySpark.
 
+```bash
+sparkR
+```
 ```R
 df <- as.DataFrame(list("One", "Two", "Three", "Four"), "This is as example")
 head(df)
@@ -486,8 +492,8 @@ curl --request GET \
 ```
 
 ## TODO
-* use alpine as a base image, trim the fat https://github.com/wagoodman/dive
-* generate ssh keys on the fly (or get rid of ssh at all, run scripts intended only for this node)
+* build hadoop native libraries
+* trim the fat https://github.com/wagoodman/dive
 * upgrade spark to work with newer versions of hive.
 * try newer versions of hive and hadoop
 * extract common image
