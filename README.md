@@ -1,5 +1,17 @@
 # Big data playground: Cluster with Hadoop, Hive, Spark, Zeppelin and Livy via Docker-compose.
 
+Base image: [![Docker Build Status: Base](https://img.shields.io/docker/cloud/build/panovvv/bigdata-base-image.svg)](https://cloud.docker.com/repository/docker/panovvv/bigdata-base-image/builds)
+[![Docker Pulls](https://img.shields.io/docker/pulls/panovvv/bigdata-base-image.svg)](https://hub.docker.com/r/panovvv/bigdata-base-image)
+[![Docker Stars](https://img.shields.io/docker/stars/panovvv/bigdata-base-image.svg)](https://hub.docker.com/r/panovvv/bigdata-base-image)
+
+Zeppelin image: [![Docker Build Status: Zeppelin](https://img.shields.io/docker/cloud/build/panovvv/bigdata-zeppelin.svg)](https://cloud.docker.com/repository/docker/panovvv/bigdata-zeppelin/builds)
+[![Docker Pulls](https://img.shields.io/docker/pulls/panovvv/bigdata-zeppelin.svg)](https://hub.docker.com/r/panovvv/bigdata-zeppelin)
+[![Docker Stars](https://img.shields.io/docker/stars/panovvv/bigdata-zeppelin.svg)](https://hub.docker.com/r/panovvv/bigdata-zeppelin)
+
+Livy image: [![Docker Build Status: Livy](https://img.shields.io/docker/cloud/build/panovvv/bigdata-livy.svg)](https://cloud.docker.com/repository/docker/panovvv/bigdata-livy/builds)
+[![Docker Pulls](https://img.shields.io/docker/pulls/panovvv/bigdata-livy.svg)](https://hub.docker.com/r/panovvv/bigdata-livy)
+[![Docker Stars](https://img.shields.io/docker/stars/panovvv/bigdata-livy.svg)](https://hub.docker.com/r/panovvv/bigdata-livy)
+
 I wanted to have the ability to play around with various big data
 applications as effortlessly as possible,
 namely those found in Amazon EMR.
@@ -510,6 +522,7 @@ When this is fixed in Spark 3.0, it will be able to use Hive as a
 backend for SparkSQL. Alternatively you can try to downgrade Hive :)
 
 ## TODO
-* Trim the fat https://github.com/wagoodman/dive
+* Trim the fat `https://github.com/wagoodman/dive`
+* Lint `./lint.sh`
 * Upgrade spark to 3.0
 * When upgraded, enable Spark-Hive integration.

@@ -1,7 +1,8 @@
 version: "3.7"
 services:
   master:
-    build: '.'
+#    build: '.'
+    image: panovvv/bigdata-base-image:2.0
     hostname: master
     depends_on:
       - hivemetastore
@@ -43,7 +44,8 @@ services:
       - "livy:172.28.1.6"
 
   worker1:
-    build: '.'
+    #    build: '.'
+    image: panovvv/bigdata-base-image:2.0
     hostname: worker1
     depends_on:
       - hivemetastore
@@ -76,7 +78,8 @@ services:
       - "livy:172.28.1.6"
 
   worker2:
-    build: '.'
+    #    build: '.'
+    image: panovvv/bigdata-base-image:2.0
     hostname: worker2
     depends_on:
       - hivemetastore
@@ -134,7 +137,8 @@ services:
       - "livy:172.28.1.6"
 
   zeppelin:
-    build: './docker_zeppelin'
+#    build: './docker_zeppelin'
+    image: panovvv/bigdata-zeppelin:2.0
     hostname: zeppelin
     depends_on:
       - master
@@ -162,7 +166,8 @@ services:
       - "livy:172.28.1.6"
 
   livy:
-    build: './docker_livy'
+#    build: './docker_livy'
+    image: panovvv/bigdata-livy:2.0
     hostname: livy
     depends_on:
       - master

@@ -134,6 +134,10 @@ COPY conf/spark/spark-defaults.conf ${SPARK_CONF_DIR}/
 #    && ln -s $SPARK_HOME/jars/spark-core_*.jar $HIVE_HOME/lib \
 #    && ln -s $SPARK_HOME/jars/spark-network-common_*.jar $HIVE_HOME/lib
 
+# Clean up
+RUN rm -rf ${HIVE_HOME}/examples \
+    && rm -rf ${SPARK_HOME}/examples/src
+
 # If both YARN Web UI and Spark UI is up, then returns 0, 1 otherwise.
 HEALTHCHECK CMD curl -f http://host.docker.internal:8080/ \
     && curl -f http://host.docker.internal:8088/ || exit 1

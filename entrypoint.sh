@@ -42,7 +42,7 @@ else
 fi
 
 # Blocking call to view all logs. This is what won't let container exit right away.
-tail -f /dev/null ${HADOOP_LOG_DIR}/* ${SPARK_HOME}/logs/*
+tail -f /dev/null ${HADOOP_LOG_DIR}/* ${SPARK_LOG_DIR}/*
 
 # Stop all
 if [ "${HADOOP_NODE}" == "namenode" ]; then

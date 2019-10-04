@@ -1,4 +1,5 @@
-FROM bigdata-docker-compose_worker1:latest
+#FROM bigdata-docker-compose_master:latest
+FROM panovvv/bigdata-base-image:2.0
 
 ARG LIVY_VERSION=0.6.0-incubating
 ENV LIVY_HOME /usr/livy

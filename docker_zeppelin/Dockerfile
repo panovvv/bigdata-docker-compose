@@ -1,4 +1,5 @@
-FROM bigdata-docker-compose_worker1:latest
+#FROM bigdata-docker-compose_master:latest
+FROM panovvv/bigdata-base-image:2.0
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -18,6 +19,23 @@ ENV PATH="${PATH}:${ZEPPELIN_HOME}/bin"
 ENV ZEPPELIN_CONF_DIR ${ZEPPELIN_HOME}/conf
 COPY conf/interpreter.json ${ZEPPELIN_CONF_DIR}
 ENV ZEPPELIN_ADDR=0.0.0.0
+
+# Clean up
+RUN rm -rf ${ZEPPELIN_HOME}/interpreter/alluxio \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/angular \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/bigquery \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/cassandra \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/elasticsearch \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/flink \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/groovy \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/hbase \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/ignite \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/kylin \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/lens \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/neo4j \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/pig \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/sap \
+    && rm -rf ${ZEPPELIN_HOME}/interpreter/scio
 
 HEALTHCHECK CMD curl -f http://host.docker.internal:${ZEPPELIN_PORT}/ || exit 1
 
