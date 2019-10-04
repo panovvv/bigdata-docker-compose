@@ -20,7 +20,7 @@ COPY conf/livy.conf ${LIVY_CONF_DIR}/livy.conf
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
-HEALTHCHECK CMD curl -f http://host.docker.internal:$LIVY_PORT/ || exit 1
+HEALTHCHECK CMD curl -f http://host.docker.internal:${LIVY_PORT}/ || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
 

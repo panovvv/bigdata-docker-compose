@@ -8,15 +8,15 @@ in one command. This is how this repository came to be!
 
 *Software:*
 
-[Hadoop 3.1.2 in Fully Distributed (Multi-node) Mode](https://hadoop.apache.org/) 
+[Hadoop 3.2.0](http://hadoop.apache.org/docs/r3.2.0/) in Fully Distributed (Multi-node) Mode
 
-[Hive 3.1.2 ](https://hadoop.apache.org/) 
+[Hive 3.1.2](http://hive.apache.org/) with JDBC Server exposed
 
-[Spark 2.4.4 in YARN mode](https://spark.apache.org/) (Spark Scala, PySpark and SparkR)
+[Spark 2.4.4](https://spark.apache.org/docs/2.4.4/) in YARN mode (Spark Scala, PySpark and SparkR)
 
-[Zeppelin 0.8.2](https://zeppelin.apache.org/) 
+[Zeppelin 0.8.2](https://zeppelin.apache.org/docs/0.8.2/) 
 
-[Livy 0.6.0-incubating](https://livy.incubator.apache.org/docs/latest/rest-api.html)
+[Livy 0.6.0-incubating](https://livy.apache.org/docs/0.6.0-incubating/rest-api.html)
 
 ## Usage
 
@@ -51,7 +51,7 @@ for Zeppelin. Thanks to that, all your notebooks persist across runs.
 
 Hive JDBC port is exposed to host:
 * URI: `jdbc:hive2://localhost:10000`
-* Driver: `org.apache.hive.jdbc.HiveDriver` (org.apache.hive:hive-jdbc:2.3.6)
+* Driver: `org.apache.hive.jdbc.HiveDriver` (org.apache.hive:hive-jdbc:3.1.2)
 * User and password: unused.
 
 To shut the whole thing down, run this from the same folder:
@@ -245,8 +245,8 @@ run-example SparkPi 10
 spark-submit --class org.apache.spark.examples.SparkPi \
     --master yarn \
     --deploy-mode client \
-    --driver-memory 4g \
-    --executor-memory 2g \
+    --driver-memory 2g \
+    --executor-memory 1g \
     --executor-cores 1 \
     $SPARK_HOME/examples/jars/spark-examples*.jar \
     10
@@ -496,10 +496,20 @@ curl --request GET \
 }
 ```
 
+## Version compatibility notes:
+* Hadoop 3.2.1 and Hive 3.1.2 are incompatible due to Guava version
+mismatch (Hadoop: Guava 27.0, Hive: Guava 19.0). Hive fails with
+`java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)`
+* Spark 2.4.4 can not 
+[use Hive higher than 1.2.2 as a SparkSQL engine](https://spark.apache.org/docs/2.4.4/sql-data-sources-hive-tables.html)
+because of this bug: [Spark need to support reading data from Hive 2.0.0 metastore](https://issues.apache.org/jira/browse/SPARK-13446)
+and associated issue [Dealing with TimeVars removed in Hive 2.x](https://issues.apache.org/jira/browse/SPARK-27349).
+Trying to make it happen results in this exception:
+`java.lang.NoSuchFieldError: HIVE_STATS_JDBC_TIMEOUT`.
+When this is fixed in Spark 3.0, it will be able to use Hive as a
+backend for SparkSQL. Alternatively you can try to downgrade Hive :)
+
 ## TODO
-* build hadoop native libraries
-* trim the fat https://github.com/wagoodman/dive
-* upgrade spark to work with newer versions of hive.
-* try newer versions of hive and hadoop
-* extract common image
-* more customized healthcheck commands
+* Trim the fat https://github.com/wagoodman/dive
+* Upgrade spark to 3.0
+* When upgraded, enable Spark-Hive integration.
