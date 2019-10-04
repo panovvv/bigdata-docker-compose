@@ -28,6 +28,8 @@ services:
       - 9870:9870
       # Hadoop secondary namenode UI
       - 9868:9868
+      # Hive JDBC
+      - 10000:10000
     volumes:
       - ./data:/data
     networks:

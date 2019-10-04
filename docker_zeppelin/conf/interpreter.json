@@ -338,11 +338,11 @@
       ],
       "dependencies": [
         {
-          "groupArtifactVersion": "org.apache.hive:hive-jdbc:0.14.0",
+          "groupArtifactVersion": "org.apache.hive:hive-jdbc:2.3.6",
           "local": false
         },
         {
-          "groupArtifactVersion": "org.apache.hadoop:hadoop-common:2.6.0",
+          "groupArtifactVersion": "org.apache.hadoop:hadoop-common:3.1.2",
           "local": false,
           "exclusions": []
         }

@@ -49,6 +49,11 @@ universal **data/**.
 * **zeppelin_notebooks/** contains, quite predictably, notebook files
 for Zeppelin. Thanks to that, all your notebooks persist across runs.
 
+Hive JDBC port is exposed to host:
+* URI: `jdbc:hive2://localhost:10000`
+* Driver: `org.apache.hive.jdbc.HiveDriver` (org.apache.hive:hive-jdbc:2.3.6)
+* User and password: unused.
+
 To shut the whole thing down, run this from the same folder:
 ```bash
 docker-compose down
