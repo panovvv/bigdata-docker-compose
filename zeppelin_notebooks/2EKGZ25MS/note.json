@@ -61,7 +61,7 @@
       "text": "%livy\n\n// Scala Spark over Livy\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
-      "text": "%livy.pyspark\n\n#  PySpark over Livy\nspark.range(1000 * 1000 * 1000).count()"
+      "text": "%livy.pyspark\n\n#  PySpark over Livy\nimport sys\nprint(sys.version)\nspark.range(1000 * 1000 * 1000).count()"
     },
     {
       "text": "%livy.sparkr\n\n# SparkR over Livy\ndf \u003c- as.DataFrame(list(\"One\", \"Two\", \"Three\", \"Four\"), \"This is as example\")\nhead(df)"
