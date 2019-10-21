@@ -105,6 +105,10 @@ COPY conf/hadoop/hdfs-site.xml ${HADOOP_CONF_DIR}
 COPY conf/hadoop/mapred-site.xml ${HADOOP_CONF_DIR}
 COPY conf/hadoop/workers ${HADOOP_CONF_DIR}
 COPY conf/hadoop/yarn-site.xml ${HADOOP_CONF_DIR}
+
+# For S3 to work. Without this line you'll get "Class org.apache.hadoop.fs.s3a.S3AFileSystem not found" exception when accessing S3 from Hadoop
+ENV HADOOP_CLASSPATH=${HADOOP_HOME}/share/hadoop/tools/lib/*
+
 # Hadoop JVM crashes on Alpine when it tries to load native libraries.
 # Solution? Delete those altogether.
 # Alternatively, you can try and compile them
@@ -121,7 +125,7 @@ COPY conf/hive/hive-site.xml ${HIVE_CONF_DIR}/
 ENV PATH="${PATH}:${SPARK_HOME}/bin"
 ENV SPARK_CONF_DIR="${SPARK_HOME}/conf"
 ENV SPARK_LOG_DIR="${SPARK_HOME}/logs"
-ENV SPARK_DIST_CLASSPATH="${HADOOP_CONF_DIR}:${HADOOP_HOME}/share/hadoop/common/lib/*:${HADOOP_HOME}/share/hadoop/common/*:${HADOOP_HOME}/share/hadoop/hdfs:${HADOOP_HOME}/share/hadoop/hdfs/lib/*:${HADOOP_HOME}/share/hadoop/hdfs/*:${HADOOP_HOME}/share/hadoop/mapreduce/lib/*:${HADOOP_HOME}/share/hadoop/mapreduce/*:${HADOOP_HOME}/share/hadoop/yarn:${HADOOP_HOME}/share/hadoop/yarn/lib/*:${HADOOP_HOME}/share/hadoop/yarn/*"
+ENV SPARK_DIST_CLASSPATH="${HADOOP_CONF_DIR}:${HADOOP_HOME}/share/hadoop/tools/lib/*:${HADOOP_HOME}/share/hadoop/common/lib/*:${HADOOP_HOME}/share/hadoop/common/*:${HADOOP_HOME}/share/hadoop/hdfs:${HADOOP_HOME}/share/hadoop/hdfs/lib/*:${HADOOP_HOME}/share/hadoop/hdfs/*:${HADOOP_HOME}/share/hadoop/mapreduce/lib/*:${HADOOP_HOME}/share/hadoop/mapreduce/*:${HADOOP_HOME}/share/hadoop/yarn:${HADOOP_HOME}/share/hadoop/yarn/lib/*:${HADOOP_HOME}/share/hadoop/yarn/*"
 COPY conf/hadoop/core-site.xml ${SPARK_CONF_DIR}/
 COPY conf/hadoop/hdfs-site.xml ${SPARK_CONF_DIR}/
 COPY conf/spark/spark-defaults.conf ${SPARK_CONF_DIR}/

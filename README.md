@@ -339,15 +339,15 @@ pyspark
 ```python
 spark.range(1000 * 1000 * 1000).count()
 
-df = spark.read.format("csv").option("header", "true").load("/grades.csv")
+df = spark.read.format('csv').option('header', 'true').load('/grades.csv')
 df.show()
 
-df.createOrReplaceTempView("df")
-spark.sql("SHOW TABLES").show()
-spark.sql("SELECT * FROM df WHERE Final > 50").show()
+df.createOrReplaceTempView('df')
+spark.sql('SHOW TABLES').show()
+spark.sql('SELECT * FROM df WHERE Final > 50').show()
 
 # TODO SELECT TABLE from hive - not working for now.
-spark.sql("SELECT * FROM grades").show()
+spark.sql('SELECT * FROM grades').show()
 ```
 <pre>
 1000000000
@@ -375,6 +375,29 @@ head(df)
 
 $same_tables_as_above
 </pre>
+
+* Amazon S3
+
+From Hadoop:
+```bash
+hadoop fs -Dfs.s3a.impl="org.apache.hadoop.fs.s3a.S3AFileSystem" -Dfs.s3a.access.key="classified" -Dfs.s3a.secret.key="classified" -ls "s3a://bucket"
+```
+
+Then from PySpark:
+
+```python
+sc._jsc.hadoopConfiguration().set('fs.s3a.impl', 'org.apache.hadoop.fs.s3a.S3AFileSystem')
+sc._jsc.hadoopConfiguration().set('fs.s3a.access.key', 'classified')
+sc._jsc.hadoopConfiguration().set('fs.s3a.secret.key', 'classified')
+
+df = spark.read.format('csv').option('header', 'true').option('sep', '\t').load('s3a://bucket/tabseparated_withheader.tsv')
+df.show(5)
+```
+
+None of the commands above stores your credentials anywhere
+(i.e. as soon as you'd shut down the cluster your creds are safe). More
+persistent ways of storing the credentials are out of scope of this
+readme.
 
 * Zeppelin
 
