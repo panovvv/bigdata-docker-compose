@@ -1,5 +1,5 @@
 #FROM bigdata-docker-compose_master:latest
-FROM panovvv/bigdata-base-image:2.1
+FROM panovvv/bigdata-base-image:2.2
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

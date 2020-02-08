@@ -1,4 +1,4 @@
-FROM alpine:3.10.2
+FROM alpine:3.11.3
 
 # curl and unzip: download and extract Hive, Hadoop, Spark etc.
 # bash: Hadoop is not compatible with Alpine's `ash` shell
@@ -8,14 +8,14 @@ FROM alpine:3.10.2
 # findutils: Spark needs GNU `find` to run jobs (weird but true)
 # ncurses: so that you can run `yarn top`
 RUN apk add --no-cache \
-    curl=7.66.0-r0 \
+    curl=7.67.0-r0 \
     unzip=6.0-r4 \
-    openjdk8=8.222.10-r0 \
-    bash=5.0.0-r0 \
+    openjdk8=8.242.08-r0 \
+    bash=5.0.11-r1 \
     coreutils=8.31-r0 \
-    procps=3.3.15-r0 \
-    findutils=4.6.0-r1 \
-    ncurses=6.1_p20190518-r0
+    procps=3.3.16-r0 \
+    findutils=4.7.0-r0 \
+    ncurses=6.1_p20191130-r0
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -58,7 +58,8 @@ RUN curl --progress-bar -L --retry 3 \
   | gunzip \
   | tar x -C /usr/ \
  && mv /usr/${SPARK_PACKAGE} ${SPARK_HOME} \
- && chown -R root:root ${SPARK_HOME}
+ && chown -R root:root ${SPARK_HOME} \
+ && mkdir /tmp/spark-events
 # For inscrutable reasons, Spark distribution doesn't include spark-hive.jar
 # Livy attempts to load it though, and will throw
 # java.lang.ClassNotFoundException: org.apache.spark.sql.hive.HiveContext
@@ -69,16 +70,16 @@ RUN curl --progress-bar -L \
 
 # PySpark - comment out if you don't want it in order to save image space
 RUN apk add --no-cache \
-    python3=3.7.4-r0 \
-    python3-dev=3.7.4-r0 \
+    python3=3.8.1-r0 \
+    python3-dev=3.8.1-r0 \
  && ln -s /usr/bin/python3 /usr/bin/python
 
 # SparkR - comment out if you don't want it in order to save image space
 RUN apk add --no-cache \
-    R=3.6.0-r1 \
-    R-dev=3.6.0-r1 \
-    libc-dev=0.7.1-r0 \
-    g++=8.3.0-r0 \
+    R=3.6.2-r0 \
+    R-dev=3.6.2-r0 \
+    libc-dev=0.7.2-r0 \
+    g++=9.2.0-r3 \
  && R -e 'install.packages("knitr", repos = "http://cran.us.r-project.org")'
 
 # Common settings

@@ -2,7 +2,7 @@ version: "3.7"
 services:
   master:
 #    build: '.'
-    image: panovvv/bigdata-base-image:2.1
+    image: panovvv/bigdata-base-image:2.2
     hostname: master
     depends_on:
       - hivemetastore
@@ -23,6 +23,8 @@ services:
       - 4041:4041
       - 4042:4042
       - 4043:4043
+      # Spark History server
+      - 18080:18080
       # YARN UI
       - 8088:8088
       # Hadoop namenode UI
@@ -45,7 +47,7 @@ services:
 
   worker1:
 #    build: '.'
-    image: panovvv/bigdata-base-image:2.1
+    image: panovvv/bigdata-base-image:2.2
     hostname: worker1
     depends_on:
       - hivemetastore
@@ -79,7 +81,7 @@ services:
 
   worker2:
 #    build: '.'
-    image: panovvv/bigdata-base-image:2.1
+    image: panovvv/bigdata-base-image:2.2
     hostname: worker2
     depends_on:
       - hivemetastore
@@ -138,7 +140,7 @@ services:
 
   zeppelin:
 #    build: './docker_zeppelin'
-    image: panovvv/bigdata-zeppelin:2.1
+    image: panovvv/bigdata-zeppelin:2.2
     hostname: zeppelin
     depends_on:
       - master
@@ -167,7 +169,7 @@ services:
 
   livy:
 #    build: './docker_livy'
-    image: panovvv/bigdata-livy:2.1
+    image: panovvv/bigdata-livy:2.2
     hostname: livy
     depends_on:
       - master

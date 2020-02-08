@@ -1,5 +1,5 @@
 #FROM bigdata-docker-compose_master:latest
-FROM panovvv/bigdata-base-image:2.1
+FROM panovvv/bigdata-base-image:2.2
 
 ARG LIVY_VERSION=0.6.0-incubating
 ENV LIVY_HOME /usr/livy

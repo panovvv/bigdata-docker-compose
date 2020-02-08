@@ -37,6 +37,7 @@ if [ -z "${SPARK_MASTER_ADDRESS}" ]; then
     hadoop dfs -copyFromLocal ${SPARK_HOME}/jars ${SPARK_JARS_HDFS_PATH}
   fi
   ${SPARK_HOME}/sbin/start-master.sh -h master &
+  ${SPARK_HOME}/sbin/start-history-server.sh &
 else
   ${SPARK_HOME}/sbin/start-slave.sh ${SPARK_MASTER_ADDRESS} &
 fi
