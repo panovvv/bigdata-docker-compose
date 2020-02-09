@@ -1,34 +1,25 @@
 # Big data playground: Cluster with Hadoop, Hive, Spark, Zeppelin and Livy via Docker-compose.
 
-Base image: [![Docker Build Status: Base](https://img.shields.io/docker/cloud/build/panovvv/bigdata-base-image.svg)](https://cloud.docker.com/repository/docker/panovvv/bigdata-base-image/builds)
-[![Docker Pulls](https://img.shields.io/docker/pulls/panovvv/bigdata-base-image.svg)](https://hub.docker.com/r/panovvv/bigdata-base-image)
-[![Docker Stars](https://img.shields.io/docker/stars/panovvv/bigdata-base-image.svg)](https://hub.docker.com/r/panovvv/bigdata-base-image)
-
-Zeppelin image: [![Docker Build Status: Zeppelin](https://img.shields.io/docker/cloud/build/panovvv/bigdata-zeppelin.svg)](https://cloud.docker.com/repository/docker/panovvv/bigdata-zeppelin/builds)
-[![Docker Pulls](https://img.shields.io/docker/pulls/panovvv/bigdata-zeppelin.svg)](https://hub.docker.com/r/panovvv/bigdata-zeppelin)
-[![Docker Stars](https://img.shields.io/docker/stars/panovvv/bigdata-zeppelin.svg)](https://hub.docker.com/r/panovvv/bigdata-zeppelin)
-
-Livy image: [![Docker Build Status: Livy](https://img.shields.io/docker/cloud/build/panovvv/bigdata-livy.svg)](https://cloud.docker.com/repository/docker/panovvv/bigdata-livy/builds)
-[![Docker Pulls](https://img.shields.io/docker/pulls/panovvv/bigdata-livy.svg)](https://hub.docker.com/r/panovvv/bigdata-livy)
-[![Docker Stars](https://img.shields.io/docker/stars/panovvv/bigdata-livy.svg)](https://hub.docker.com/r/panovvv/bigdata-livy)
-
 I wanted to have the ability to play around with various big data
 applications as effortlessly as possible,
 namely those found in Amazon EMR.
 Ideally, that would be something that can be brought up and torn down
 in one command. This is how this repository came to be!
 
-*Software:*
+## Constituent images:
 
-[Hadoop 3.2.0](http://hadoop.apache.org/docs/r3.2.0/) in Fully Distributed (Multi-node) Mode
+[Base image](https://github.com/panovvv/hadoop-hive-spark-docker):
+[![Docker Build Status: Base image](https://img.shields.io/docker/cloud/build/panovvv/livy.svg)](https://cloud.docker.com/repository/docker/panovvv/livy/builds)
+[![Docker Pulls: Base image](https://img.shields.io/docker/pulls/panovvv/livy.svg)](https://hub.docker.com/r/panovvv/livy)
+[![Docker Stars: Base image](https://img.shields.io/docker/stars/panovvv/livy.svg)](https://hub.docker.com/r/panovvv/livy)
 
-[Hive 3.1.2](http://hive.apache.org/) with JDBC Server exposed
+[Zeppelin image](https://github.com/panovvv/zeppelin-bigdata-docker): [![Docker Build Status: Zeppelin](https://img.shields.io/docker/cloud/build/panovvv/zeppelin-bigdata.svg)](https://cloud.docker.com/repository/docker/panovvv/zeppelin-bigdata/builds)
+[![Docker Pulls: Zeppelin](https://img.shields.io/docker/pulls/panovvv/zeppelin-bigdata.svg)](https://hub.docker.com/r/panovvv/zeppelin-bigdata)
+[![Docker Stars: Zeppelin](https://img.shields.io/docker/stars/panovvv/zeppelin-bigdata.svg)](https://hub.docker.com/r/panovvv/zeppelin-bigdata)
 
-[Spark 2.4.4](https://spark.apache.org/docs/2.4.4/) in YARN mode (Spark Scala, PySpark and SparkR)
-
-[Zeppelin 0.8.2](https://zeppelin.apache.org/docs/0.8.2/) 
-
-[Livy 0.6.0-incubating](https://livy.apache.org/docs/0.6.0-incubating/rest-api.html)
+[Livy image](https://github.com/panovvv/livy-docker): [![Docker Build Status: Livy](https://img.shields.io/docker/cloud/build/panovvv/livy.svg)](https://cloud.docker.com/repository/docker/panovvv/livy/builds)
+[![Docker Pulls: Livy](https://img.shields.io/docker/pulls/panovvv/livy.svg)](https://hub.docker.com/r/panovvv/livy)
+[![Docker Stars: Livy](https://img.shields.io/docker/stars/panovvv/livy.svg)](https://hub.docker.com/r/panovvv/livy)
 
 ## Usage
 
@@ -530,22 +521,3 @@ curl --request GET \
   ]
 }
 ```
-
-## Version compatibility notes:
-* Hadoop 3.2.1 and Hive 3.1.2 are incompatible due to Guava version
-mismatch (Hadoop: Guava 27.0, Hive: Guava 19.0). Hive fails with
-`java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)`
-* Spark 2.4.4 can not 
-[use Hive higher than 1.2.2 as a SparkSQL engine](https://spark.apache.org/docs/2.4.4/sql-data-sources-hive-tables.html)
-because of this bug: [Spark need to support reading data from Hive 2.0.0 metastore](https://issues.apache.org/jira/browse/SPARK-13446)
-and associated issue [Dealing with TimeVars removed in Hive 2.x](https://issues.apache.org/jira/browse/SPARK-27349).
-Trying to make it happen results in this exception:
-`java.lang.NoSuchFieldError: HIVE_STATS_JDBC_TIMEOUT`.
-When this is fixed in Spark 3.0, it will be able to use Hive as a
-backend for SparkSQL. Alternatively you can try to downgrade Hive :)
-
-## TODO
-* Trim the fat `https://github.com/wagoodman/dive`
-* Lint `./lint.sh`
-* Upgrade spark to 3.0
-* When upgraded, enable Spark-Hive integration.
