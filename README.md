@@ -521,3 +521,13 @@ curl --request GET \
   ]
 }
 ```
+
+## Credits
+Sample data file:
+* __grades.csv__ is borrowed from 
+[John Burkardt's page](https://people.sc.fsu.edu/~jburkardt/data/csv/csv.html)
+under Florida State University domain. Thanks for
+sharing those!
+
+* __ssn-address.tsv__ is derived from  __grades.csv__ by removing some fields
+and adding randomly-generated addresses.

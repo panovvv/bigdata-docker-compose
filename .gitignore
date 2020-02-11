@@ -4,3 +4,9 @@ desktop.ini
 
 # IDE garbage
 .idea/
+
+# Livy batch files, copied over from elsewhere
+data/batches/
+
+# Spark job results
+data/output/
