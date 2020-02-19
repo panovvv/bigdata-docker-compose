@@ -240,6 +240,14 @@ worker-timestamp-172.28.1.2-8881	172.28.1.2:8881	ALIVE	2 (0 Used)	1024.0 MB (0.0
 and  [localhost:8082](http://localhost:8082/). All those pages should be
 accessible.
 
+Then there's also Spark History server running at 
+[localhost:18080](http://localhost:18080/) - every time you run Spark jobs, you
+will see them here.
+
+History Server includes REST API at 
+[localhost:18080/api/v1/applications](http://localhost:18080/api/v1/applications).
+This is a mirror of everything on the main page, only in JSON format.
+
 Let's run some sample jobs now:
 ```bash
 docker-compose exec master bash
