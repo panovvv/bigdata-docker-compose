@@ -1,7 +1,7 @@
 {
   "paragraphs": [
     {
-      "text": "%sh\n\n#Only load a file to HDFS if it's not already there - because of this you can run all paragraphs as many times as you like.\nhadoop fs -test -e /grades.csv\n\nif [[ $? != 0 ]] ;\nthen\n    hadoop fs -put /data/grades.csv /\nfi"
+      "text": "%sh\n\n#Only load a file to HDFS if it\u0027s not already there - because of this you can run all paragraphs as many times as you like.\nhadoop fs -test -e /grades.csv\n\nif ! hadoop fs -test -e /grades.csv\nthen\n    echo \"grades.csv is not in HDFS yet! Uploading...\"\n    hadoop fs -put /data/grades.csv /\nfi"
     },
     {
       "text": "%sh\n\nhadoop fs -ls /"

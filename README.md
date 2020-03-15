@@ -70,7 +70,7 @@ and running all paragraphs.
 Alternatively, to get a sense of
 how it all works under the hood, follow the instructions below:
 
-* Hadoop and YARN:
+### Hadoop and YARN:
 
 Check [YARN (Hadoop ResourceManager) Web UI
 (localhost:8088)](http://localhost:8088/).
@@ -86,16 +86,19 @@ Open up a shell in the master node.
 docker-compose exec master bash
 jps
 ```
-Jps command outputs a list of running Java processes,
-which on Hadoop Namenode/Spark Master node should include those
-(not necessarily in this order and those IDs):
+`jps` command outputs a list of running Java processes,
+which on Hadoop Namenode/Spark Master node should include those:
 <pre>
-123 SecondaryNameNode
+123 Jps
 456 ResourceManager
-789 Jps
-234 Master
-567 NameNode
+789 NameNode
+234 SecondaryNameNode
+567 HistoryServer
+890 Master
 </pre>
+
+... but not necessarily in this order and those IDs, 
+also some extras like `RunJar` and `JobHistoryServer` might be there too.
 
 Then let's see if YARN can see all resources we have (2 worker nodes):
 ```bash
@@ -152,16 +155,15 @@ NameNode and Master:
 jps
 ```
 <pre>
-123 NodeManager
-456 RunJar
-789 Worker
-234 Jps
-567 DataNode
+123 Jps
+456 NodeManager
+789 DataNode
+234 Worker
 </pre>
 
-* Hive
+### Hive
 
-Prerequisite: there's a file grades.csv stored in HDFS ( `hadoop fs -put /data/grades.csv /` )
+Prerequisite: there's a file `grades.csv` stored in HDFS ( `hadoop fs -put /data/grades.csv /` )
 ```bash
 docker-compose exec master bash
 hive
@@ -227,7 +229,7 @@ hive
 SELECT * FROM grades;
 ```
 You should be able to see the same table.
-* Spark
+### Spark
 
 Open up [Spark Master Web UI (localhost:8080)](http://localhost:8080/):
 <pre>
@@ -398,66 +400,135 @@ None of the commands above stores your credentials anywhere
 persistent ways of storing the credentials are out of scope of this
 readme.
 
-* Zeppelin
+### Zeppelin
 
 Zeppelin interface should be available at [http://localhost:8890](http://localhost:8890).
 
 You'll find a notebook called "test" in there, containing commands
 to test integration with bash, Spark and Livy.
 
-* Livy
+### Livy
 
 Livy is at [http://localhost:8998](http://localhost:8998) (and yes,
 there's a web UI as well as REST API on that port - just click the link).
 
-* Livy Sessions:
+* Livy Sessions.
 
 Try to poll the REST API:
 ```bash
 curl --request GET \
-  --url http://localhost:8998/sessions
+  --url http://localhost:8998/sessions | python3 -mjson.tool
 ```
->{"from": 0,"total": 0,"sessions": []}
+```json
+{
+  "from": 0,
+  "total": 0,
+  "sessions": []
+}
+```
 
-1) Create a session
+1 ) Create a session:
 ```bash
 curl --request POST \
   --url http://localhost:8998/sessions \
   --header 'content-type: application/json' \
   --data '{
 	"kind": "pyspark"
-}'
+}' | python3 -mjson.tool
+```
+Response:
+```json
+{
+    "id": 0,
+    "name": null,
+    "appId": null,
+    "owner": null,
+    "proxyUser": null,
+    "state": "starting",
+    "kind": "pyspark",
+    "appInfo": {
+        "driverLogUrl": null,
+        "sparkUiUrl": null
+    },
+    "log": [
+        "stdout: ",
+        "\nstderr: ",
+        "\nYARN Diagnostics: "
+    ]
+}
 ```
 
-2) Wait for session to start (state will transition from "starting"
+2 ) Wait for session to start (state will transition from "starting"
 to "idle"):
 ```bash
 curl --request GET \
-  --url http://localhost:8998/sessions/0 | python -mjson.tool
+  --url http://localhost:8998/sessions/0 | python3 -mjson.tool
 ```
->{"id":0, ... "state":"idle", ...
+Response:
+```json
+{
+    "id": 0,
+    "name": null,
+    "appId": "application_1584274334558_0001",
+    "owner": null,
+    "proxyUser": null,
+    "state": "starting",
+    "kind": "pyspark",
+    "appInfo": {
+        "driverLogUrl": "http://worker2:8042/node/containerlogs/container_1584274334558_0003_01_000001/root",
+        "sparkUiUrl": "http://master:8088/proxy/application_1584274334558_0003/"
+    },
+    "log": [
+        "timestamp bla"
+    ]
+}
+```
 
-3) Post some statements
+3 ) Post some statements:
 ```bash
 curl --request POST \
   --url http://localhost:8998/sessions/0/statements \
   --header 'content-type: application/json' \
   --data '{
 	"code": "import sys;print(sys.version)"
-}'
+}' | python3 -mjson.tool
 curl --request POST \
   --url http://localhost:8998/sessions/0/statements \
   --header 'content-type: application/json' \
   --data '{
 	"code": "spark.range(1000 * 1000 * 1000).count()"
-}'
+}' | python3 -mjson.tool
+```
+Response:
+```json
+{
+    "id": 0,
+    "code": "import sys;print(sys.version)",
+    "state": "waiting",
+    "output": null,
+    "progress": 0.0,
+    "started": 0,
+    "completed": 0
+}
+```
+```json
+{
+    "id": 1,
+    "code": "spark.range(1000 * 1000 * 1000).count()",
+    "state": "waiting",
+    "output": null,
+    "progress": 0.0,
+    "started": 0,
+    "completed": 0
+}
 ```
 
 4) Get the result:
 ```bash
 curl --request GET \
-  --url http://localhost:8998/sessions/0/statements | python -mjson.tool
+  --url http://localhost:8998/sessions/0/statements | python3 -mjson.tool
 ```
+Response:
 ```json
 {
   "total_statements": 2,
@@ -491,42 +562,136 @@ curl --request GET \
   ]
 }
 ```
-* Livy Batches:
+
+5) Delete the session:
+```bash
+curl --request DELETE \
+  --url http://localhost:8998/sessions/0 | python3 -mjson.tool
+```
+Response:
+```json
+{
+  "msg": "deleted"
+}
+```
+* Livy Batches.
+
+Try to poll the REST API:
+```bash
+curl --request GET \
+  --url http://localhost:8998/batches | python3 -mjson.tool
+```
+Strange enough, this elicits the same response as if we were querying
+the sessions endpoint, but ok...
+
+1 ) Send the batch:
 ```bash
 curl --request POST \
   --url http://localhost:8998/batches \
   --header 'content-type: application/json' \
   --data '{
-	"file": "local:/livy_batches/example.py",
+	"file": "local:/data/batches/sample_batch.py",
 	"pyFiles": [
-		"local:/livy_batches/example.py"
+		"local:/data/batches/sample_batch.py"
 	],
 	"args": [
-		"10"
+		"123"
 	]
-}'
-curl --request GET \
-  --url http://localhost:8998/batches/0 | python -mjson.tool
-# You can manipulate 'to' and 'from' params to get all log lines,
-# no more than 100 at a time is supported.
-curl --request GET \
-  --url 'http://localhost:8998/batches/0/log?from=100&to=200' | python -mjson.tool
+}' | python3 -mjson.tool
 ```
+Response:
 ```json
 {
-  "id": 0,
-  "from": 100,
-  "total": 149,
-  "log": [
-    "...",
-    "INFO scheduler.DAGScheduler: Job 0 finished: reduce at /livy_batches/example.py:28, took 1.733666 s",
-    "Pi is roughly 3.142788",
-    "3.7.3 (default, Apr  3 2019, 19:16:38) ",
-    "[GCC 8.0.1 20180414 (experimental) [trunk revision 259383]]",
-    "INFO server.AbstractConnector: Stopped Spark@3a1aa7a3{HTTP/1.1,[http/1.1]}{0.0.0.0:4040}"
-    "...",
-    "\nstderr: "
-  ]
+    "id": 0,
+    "name": null,
+    "owner": null,
+    "proxyUser": null,
+    "state": "starting",
+    "appId": null,
+    "appInfo": {
+        "driverLogUrl": null,
+        "sparkUiUrl": null
+    },
+    "log": [
+        "stdout: ",
+        "\nstderr: ",
+        "\nYARN Diagnostics: "
+    ]
+}
+```
+
+2 ) Query the status:
+```bash
+curl --request GET \
+  --url http://localhost:8998/batches/0 | python3 -mjson.tool
+```
+Response:
+```json
+{
+    "id": 0,
+    "name": null,
+    "owner": null,
+    "proxyUser": null,
+    "state": "running",
+    "appId": "application_1584274334558_0005",
+    "appInfo": {
+        "driverLogUrl": "http://worker2:8042/node/containerlogs/container_1584274334558_0005_01_000001/root",
+        "sparkUiUrl": "http://master:8088/proxy/application_1584274334558_0005/"
+    },
+    "log": [
+        "timestamp bla",
+        "\nstderr: ",
+        "\nYARN Diagnostics: "
+    ]
+}
+```
+
+3 ) To see all log lines, query the `/log` endpoint.
+You can skip 'to' and 'from' params, or manipulate them to get all log lines.
+Livy (as of 0.8.0) supports no more than 100 log lines per response.
+```bash
+curl --request GET \
+  --url 'http://localhost:8998/batches/0/log?from=100&to=200' | python3 -mjson.tool
+```
+Response:
+```json
+{
+    "id": 4,
+    "from": 100,
+    "total": 203,
+    "log": [
+        "...",
+        "Welcome to",
+        "      ____              __",
+        "     / __/__  ___ _____/ /__",
+        "    _\\ \\/ _ \\/ _ `/ __/  '_/",
+        "   /__ / .__/\\_,_/_/ /_/\\_\\   version 2.4.5",
+        "      /_/",
+        "",
+        "Using Python version 3.7.5 (default, Oct 17 2019 12:25:15)",
+        "SparkSession available as 'spark'.",
+        "3.7.5 (default, Oct 17 2019, 12:25:15) ",
+        "[GCC 8.3.0]","Arguments: ",
+        "['/data/batches/sample_batch.py', '123']",
+        "Custom number passed in args: 123",
+        "Will raise 123 to the power of 3...",
+        "...",
+        "123 ^ 3 = 1860867",
+        "...",
+        "2020-03-15 13:06:09,503 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-138164b7-c5dc-4dc5-be6b-7a49c6bcdff0/pyspark-4d73b7c7-e27c-462f-9e5a-96011790d059"
+    ]
+}
+```
+
+4 ) Delete the batch:
+```bash
+curl --request DELETE \
+  --url http://localhost:8998/batches/0 | python3 -mjson.tool
+```
+Response:
+```json
+{
+  "msg": "deleted"
 }
 ```
 
