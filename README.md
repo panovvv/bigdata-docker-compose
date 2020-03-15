@@ -419,6 +419,7 @@ Try to poll the REST API:
 curl --request GET \
   --url http://localhost:8998/sessions | python3 -mjson.tool
 ```
+The response, assuming you didn't create any sessions before, should look like this:
 ```json
 {
   "from": 0,
@@ -576,7 +577,7 @@ Response:
 ```
 * Livy Batches.
 
-Try to poll the REST API:
+To get all active batches:
 ```bash
 curl --request GET \
   --url http://localhost:8998/batches | python3 -mjson.tool
@@ -648,7 +649,7 @@ Response:
 
 3 ) To see all log lines, query the `/log` endpoint.
 You can skip 'to' and 'from' params, or manipulate them to get all log lines.
-Livy (as of 0.8.0) supports no more than 100 log lines per response.
+Livy (as of 0.7.0) supports no more than 100 log lines per response.
 ```bash
 curl --request GET \
   --url 'http://localhost:8998/batches/0/log?from=100&to=200' | python3 -mjson.tool
@@ -656,7 +657,7 @@ curl --request GET \
 Response:
 ```json
 {
-    "id": 4,
+    "id": 0,
     "from": 100,
     "total": 203,
     "log": [
@@ -671,7 +672,8 @@ Response:
         "Using Python version 3.7.5 (default, Oct 17 2019 12:25:15)",
         "SparkSession available as 'spark'.",
         "3.7.5 (default, Oct 17 2019, 12:25:15) ",
-        "[GCC 8.3.0]","Arguments: ",
+        "[GCC 8.3.0]",
+        "Arguments: ",
         "['/data/batches/sample_batch.py', '123']",
         "Custom number passed in args: 123",
         "Will raise 123 to the power of 3...",
