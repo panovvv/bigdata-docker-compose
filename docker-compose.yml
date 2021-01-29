@@ -25,7 +25,7 @@ services:
       - "livy:172.28.1.6"
 
   master:
-    image: panovvv/hadoop-hive-spark:2.5
+    image: panovvv/hadoop-hive-spark:2.5.1
 #    build: '../hadoop-hive-spark-docker'
     hostname: master
     depends_on:
@@ -70,7 +70,7 @@ services:
       - "livy:172.28.1.6"
 
   worker1:
-    image: panovvv/hadoop-hive-spark:2.5
+    image: panovvv/hadoop-hive-spark:2.5.1
 #    build: '../hadoop-hive-spark-docker'
     hostname: worker1
     depends_on:
@@ -104,7 +104,7 @@ services:
       - "livy:172.28.1.6"
 
   worker2:
-    image: panovvv/hadoop-hive-spark:2.5
+    image: panovvv/hadoop-hive-spark:2.5.1
 #    build: '../hadoop-hive-spark-docker'
     hostname: worker2
     depends_on:
@@ -139,7 +139,7 @@ services:
       - "livy:172.28.1.6"
 
   livy:
-    image: panovvv/livy:2.5
+    image: panovvv/livy:2.5.1
 #    build: '../livy-docker'
     hostname: livy
     depends_on:
@@ -176,7 +176,7 @@ services:
       - "zeppelin:172.28.1.5"
 
   zeppelin:
-    image: panovvv/zeppelin-bigdata:2.5
+    image: panovvv/zeppelin-bigdata:2.5.1
 #    build: '../zeppelin-bigdata-docker'
     hostname: zeppelin
     depends_on:

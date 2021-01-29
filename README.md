@@ -27,14 +27,17 @@ Clone:
 ```bash
 git clone https://github.com/panovvv/bigdata-docker-compose.git
 ```
-You should dedicate more RAM to Docker than it does by default
-(2Gb on my machine with 16Gb RAM). Otherwise applications (ResourceManager in my case)
-will quit sporadically and you'll see messages like this one in logs:
-<pre>
-current-datetime INFO org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 1234ms
-No GCs detected
-</pre>
-Increasing memory to 8G solved all those mysterious problems for me.
+* On non-Linux platforms, you should dedicate more RAM to Docker than it does by default
+  (2Gb on my machine with 16Gb RAM). Otherwise applications (ResourceManager in my case)
+  will quit sporadically and you'll see messages like this one in logs:
+  <pre>
+  current-datetime INFO org.apache.hadoop.util.JvmPauseMonitor: Detected pause in JVM or host machine (eg GC): pause of approximately 1234ms
+  No GCs detected
+  </pre>
+  Increasing memory to 8G solved all those mysterious problems for me.
+
+* You should have more than 90% of free disk space, otherwise
+  YARN will deem all nodes unhealthy.
 
 Bring everything up:
 ```bash
@@ -64,7 +67,7 @@ docker-compose down
 
 ## Checking if everything plays well together
 You can quickly check everything by opening the
-[bundled Zeppelin notebook](http://localhost:8890/#/notebook/2EKGZ25MS)
+[bundled Zeppelin notebook](http://localhost:8890)
 and running all paragraphs.
 
 Alternatively, to get a sense of
@@ -75,6 +78,8 @@ how it all works under the hood, follow the instructions below:
 Check [YARN (Hadoop ResourceManager) Web UI
 (localhost:8088)](http://localhost:8088/).
 You should see 2 active nodes there.
+There's also an
+[alternative YARN Web UI 2 (http://localhost:8088/ui2)](http://localhost:8088/ui2).
 
 Then, [Hadoop Name Node UI (localhost:9870)](http://localhost:9870),
 Hadoop Data Node UIs at
@@ -97,7 +102,7 @@ which on Hadoop Namenode/Spark Master node should include those:
 890 Master
 </pre>
 
-... but not necessarily in this order and those IDs, 
+... but not necessarily in this order and those IDs,
 also some extras like `RunJar` and `JobHistoryServer` might be there too.
 
 Then let's see if YARN can see all resources we have (2 worker nodes):
@@ -136,7 +141,7 @@ Found N items
 ...
 </pre>
 
-Ctrl+D out of master now. Repeat for remaining nodes 
+Ctrl+D out of master now. Repeat for remaining nodes
 (there's 3 total: master, worker1 and worker2):
 
 ```bash
@@ -242,11 +247,11 @@ worker-timestamp-172.28.1.2-8881	172.28.1.2:8881	ALIVE	2 (0 Used)	1024.0 MB (0.0
 and  [localhost:8082](http://localhost:8082/). All those pages should be
 accessible.
 
-Then there's also Spark History server running at 
+Then there's also Spark History server running at
 [localhost:18080](http://localhost:18080/) - every time you run Spark jobs, you
 will see them here.
 
-History Server includes REST API at 
+History Server includes REST API at
 [localhost:18080/api/v1/applications](http://localhost:18080/api/v1/applications).
 This is a mirror of everything on the main page, only in JSON format.
 
@@ -705,4 +710,5 @@ under Florida State University domain. Thanks for
 sharing those!
 
 * __ssn-address.tsv__ is derived from  __grades.csv__ by removing some fields
-and adding randomly-generated addresses.
+  and adding randomly-generated addresses.
+  
