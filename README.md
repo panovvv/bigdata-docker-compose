@@ -9,9 +9,9 @@ in one command. This is how this repository came to be!
 ## Constituent images:
 
 [Base image](https://github.com/panovvv/hadoop-hive-spark-docker):
-[![Docker Build Status: Base image](https://img.shields.io/docker/cloud/build/panovvv/livy.svg)](https://cloud.docker.com/repository/docker/panovvv/livy/builds)
-[![Docker Pulls: Base image](https://img.shields.io/docker/pulls/panovvv/livy.svg)](https://hub.docker.com/r/panovvv/livy)
-[![Docker Stars: Base image](https://img.shields.io/docker/stars/panovvv/livy.svg)](https://hub.docker.com/r/panovvv/livy)
+[![Docker Build Status: Base image](https://img.shields.io/docker/cloud/build/panovvv/hadoop-hive-spark.svg)](https://cloud.docker.com/repository/docker/panovvv/hadoop-hive-spark/builds)
+[![Docker Pulls: Base image](https://img.shields.io/docker/pulls/panovvv/hadoop-hive-spark.svg)](https://hub.docker.com/r/panovvv/hadoop-hive-spark)
+[![Docker Stars: Base image](https://img.shields.io/docker/stars/panovvv/hadoop-hive-spark.svg)](https://hub.docker.com/r/panovvv/hadoop-hive-spark)
 
 [Zeppelin image](https://github.com/panovvv/zeppelin-bigdata-docker): [![Docker Build Status: Zeppelin](https://img.shields.io/docker/cloud/build/panovvv/zeppelin-bigdata.svg)](https://cloud.docker.com/repository/docker/panovvv/zeppelin-bigdata/builds)
 [![Docker Pulls: Zeppelin](https://img.shields.io/docker/pulls/panovvv/zeppelin-bigdata.svg)](https://hub.docker.com/r/panovvv/zeppelin-bigdata)
